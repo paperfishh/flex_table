@@ -1,0 +1,11 @@
+Region,Category,Product,Status,Sales,Target,Profit Margin,Satisfaction Rating,Monthly Trend
+North,Electronics,Smart Phone,Active,125000,100000,0.22,4.8,"85, 92, 105, 110, 118, 125"
+North,Electronics,Laptop Pro,Active,98000,90000,0.18,4.5,"70, 75, 82, 88, 92, 98"
+North,Furniture,Ergonomic Chair,Pending,45000,50000,-0.05,3.9,"52, 50, 48, 46, 45, 45"
+South,Electronics,Tablet Ultra,Active,87000,80000,0.25,4.6,"60, 65, 72, 78, 82, 87"
+South,Furniture,Executive Desk,Critical,28000,40000,-0.12,3.2,"38, 35, 32, 30, 29, 28"
+East,Electronics,Smart Watch,Completed,142000,120000,0.30,4.9,"90, 100, 115, 125, 135, 142"
+East,Furniture,Standing Desk,Active,62000,60000,0.15,4.3,"45, 48, 52, 55, 58, 62"
+West,Electronics,Wireless Earbuds,Active,115000,100000,0.28,4.7,"75, 82, 90, 98, 105, 115"
+West,Furniture,Bookshelf Unit,Completed,34000,35000,0.08,4.1,"30, 31, 32, 33, 34, 34"
+West,Electronics,4K Monitor,Critical,51000,70000,-0.08,3.5,"65, 60, 58, 55, 53, 51"

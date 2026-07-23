@@ -1,0 +1,24 @@
+{
+  "name": "flex-table",
+  "version": "1.0.0",
+  "description": "High-performance dependency-free custom HTML5 table visualization plugin for MicroStrategy with real-time search, multi-metric thresholds, cell merging, and CSV export.",
+  "main": "FlexTable/javascript/mojo/js/source/FlexTable.js",
+  "scripts": {
+    "build": "powershell -ExecutionPolicy Bypass -File build-plugin.ps1"
+  },
+  "keywords": [
+    "microstrategy",
+    "custom-visualization",
+    "plugin",
+    "dossier",
+    "business-intelligence",
+    "data-visualization",
+    "table"
+  ],
+  "author": "Flex Table Contributors",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-username/flex_table.git"
+  }
+}

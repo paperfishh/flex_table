@@ -1,0 +1,16 @@
+<visualizations>
+    <visualization-list name="ajax" show-in-web="true" view-mode="51">
+        <visualization
+            id="FlexTable"
+            desc="Flex Table"
+            summary="Search, sort, page, and export tabular data"
+            categories="Custom"
+            is-mojo="true"
+            scope="18"
+            style-name="FlexTableStyle"
+            attribute-minimum="0"
+            metric-minimum="0"
+            widget-type="0"
+            editor-model="plugins.FlexTable.FlexTableEditorModel" />
+    </visualization-list>
+</visualizations>

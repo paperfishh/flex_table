@@ -1,0 +1,38 @@
+.mstrmojo-VIGallery .mstrmojo-VIGalleryList .item.ic-FlexTableStyle,
+.mstrmojo-VIGallery .mstrmojo-VIGalleryList .item.ic-FlexTable,
+.mstrmojo-VIGalleryItem.ic-FlexTableStyle,
+.mstrmojo-VIGalleryItem.ic-FlexTable {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+.mstrmojo-VIGallery .mstrmojo-VIGalleryList .item.ic-FlexTableStyle > div,
+.mstrmojo-VIGallery .mstrmojo-VIGalleryList .item.ic-FlexTable > div,
+.mstrmojo-VIGalleryItem.ic-FlexTableStyle > div,
+.mstrmojo-VIGalleryItem.ic-FlexTable > div {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 100% !important;
+    height: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+.mstrmojo-VIGallery .mstrmojo-VIGalleryList .item.ic-FlexTableStyle > div > div,
+.mstrmojo-VIGallery .mstrmojo-VIGalleryList .item.ic-FlexTable > div > div,
+.mstrmojo-VIGalleryItem.ic-FlexTableStyle > div > div,
+.mstrmojo-VIGalleryItem.ic-FlexTable > div > div {
+    background-image: url("../style/images/icon.png") !important;
+    background-position: center center !important;
+    background-repeat: no-repeat !important;
+    background-size: contain !important;
+    width: 28px !important;
+    height: 28px !important;
+    margin: auto !important;
+    position: relative !important;
+    top: 0 !important;
+    left: 0 !important;
+}
+
