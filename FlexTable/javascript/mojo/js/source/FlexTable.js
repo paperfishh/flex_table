@@ -237,11 +237,18 @@
         var headerFont = fontSettings(viz.getProperty('headerFont'), { family: 'Arial', size: '12px', color: '#324a5f' });
         var valueFont = fontSettings(viz.getProperty('valueFont'), { family: 'Arial', size: '12px', color: '#1f2937' });
         var totalFont = fontSettings(viz.getProperty('totalFont'), { family: 'Arial', size: '12px', color: '#1f2937' });
+        var kpiTitleFont = fontSettings(viz.getProperty('kpiTitleFont'), { family: 'Arial', size: '10px', color: '#52606d' });
+        var kpiValueFont = fontSettings(viz.getProperty('kpiValueFont'), { family: 'Arial', size: '16px', color: '#1f2937' });
         var gridLine = lineSettings(viz.getProperty('gridLine'), fillColor(viz.getProperty('outlineFill'), '#d9e1ea'));
         return {
             presetTheme: viz.getProperty('presetTheme') || 'default',
             showKpiCards: getBoolean(viz.getProperty('showKpiCards'), false),
             enableKpiIcons: getBoolean(viz.getProperty('enableKpiIcons'), false),
+            kpiAggregation: viz.getProperty('kpiAggregation') || 'auto',
+            kpiLayout: viz.getProperty('kpiLayout') || 'grid',
+            showKpiMinMax: getBoolean(viz.getProperty('showKpiMinMax'), true),
+            kpiCardBg: fillColor(viz.getProperty('kpiCardFill'), '#f8fafc'),
+            kpiCardBorderColor: fillColor(viz.getProperty('kpiCardBorderFill'), '#d9e1ea'),
             showSearch: getBoolean(viz.getProperty('showSearch'), true),
             showExport: getBoolean(viz.getProperty('showExport'), true),
             enablePagination: getBoolean(viz.getProperty('enablePagination'), true),
@@ -279,6 +286,8 @@
             headerFont: headerFont,
             valueFont: valueFont,
             totalFont: totalFont,
+            kpiTitleFont: kpiTitleFont,
+            kpiValueFont: kpiValueFont,
             gridLine: gridLine
         };
     }
@@ -294,6 +303,7 @@
             settings.showBanding ? '' : 'flex-table-no-banding',
             settings.showOutline ? '' : 'flex-table-no-outline',
             settings.pinFirstColumn ? 'flex-table-pinned-col' : '',
+            settings.kpiLayout && settings.kpiLayout !== 'grid' ? 'flex-table-kpi-layout-' + settings.kpiLayout : '',
             'flex-table-grid-' + settings.gridMode,
             'flex-table-column-' + settings.columnSizing,
             'flex-table-row-' + settings.rowSizing,
@@ -326,6 +336,19 @@
         setStyleVariable(root, '--flex-table-total-font-weight', settings.totalFont.weight);
         setStyleVariable(root, '--flex-table-total-font-style', settings.totalFont.style);
         setStyleVariable(root, '--flex-table-total-text-decoration', settings.totalFont.decoration);
+        setStyleVariable(root, '--flex-table-kpi-bg-color', settings.kpiCardBg);
+        setStyleVariable(root, '--flex-table-kpi-border-color', settings.kpiCardBorderColor);
+        setStyleVariable(root, '--flex-table-kpi-title-font-family', settings.kpiTitleFont.family);
+        setStyleVariable(root, '--flex-table-kpi-title-font-size', settings.kpiTitleFont.size);
+        setStyleVariable(root, '--flex-table-kpi-title-font-color', settings.kpiTitleFont.color);
+        setStyleVariable(root, '--flex-table-kpi-title-font-weight', settings.kpiTitleFont.weight);
+        setStyleVariable(root, '--flex-table-kpi-title-font-style', settings.kpiTitleFont.style);
+        setStyleVariable(root, '--flex-table-kpi-value-font-family', settings.kpiValueFont.family);
+        setStyleVariable(root, '--flex-table-kpi-value-font-size', settings.kpiValueFont.size);
+        setStyleVariable(root, '--flex-table-kpi-value-font-color', settings.kpiValueFont.color);
+        setStyleVariable(root, '--flex-table-kpi-value-font-weight', settings.kpiValueFont.weight);
+        setStyleVariable(root, '--flex-table-kpi-value-font-style', settings.kpiValueFont.style);
+        setStyleVariable(root, '--flex-table-kpi-value-text-decoration', settings.kpiValueFont.decoration);
         setStyleVariable(root, '--flex-table-header-h-align', settings.headerHAlign);
         setStyleVariable(root, '--flex-table-header-v-align', settings.headerVAlign);
         setStyleVariable(root, '--flex-table-attribute-h-align', settings.attributeHAlign);
@@ -680,11 +703,14 @@
                 }
             });
 
-            var totalVal = aggregate(numericValues, state.settings.totalAggregation || 'sum');
+            var aggMethod = state.settings.kpiAggregation && state.settings.kpiAggregation !== 'auto' ? state.settings.kpiAggregation : (state.settings.totalAggregation || 'sum');
+            var totalVal = aggregate(numericValues, aggMethod);
             var formatted = formatTotal(totalVal, sampleCell);
 
             addElement(card, 'div', 'flex-table-kpi-value', formatted);
-            addElement(card, 'div', 'flex-table-kpi-sub', 'Min: ' + stats.min.toLocaleString() + ' | Max: ' + stats.max.toLocaleString());
+            if (state.settings.showKpiMinMax) {
+                addElement(card, 'div', 'flex-table-kpi-sub', 'Min: ' + stats.min.toLocaleString() + ' | Max: ' + stats.max.toLocaleString());
+            }
         });
     }
 
@@ -1483,6 +1509,13 @@
                         presetTheme: 'default',
                         showKpiCards: 'false',
                         enableKpiIcons: 'false',
+                        kpiAggregation: 'auto',
+                        kpiLayout: 'grid',
+                        showKpiMinMax: 'true',
+                        kpiCardFill: { fillColor: '#f8fafc', fillAlpha: '100' },
+                        kpiCardBorderFill: { fillColor: '#d9e1ea', fillAlpha: '100' },
+                        kpiTitleFont: { fontFamily: 'Arial', fontStyle: '1', fontSize: '10px', fontColor: '#52606d' },
+                        kpiValueFont: { fontFamily: 'Arial', fontStyle: '1', fontSize: '16px', fontColor: '#1f2937' },
                         showSearch: 'true',
                         showExport: 'true',
                         enablePagination: 'true',

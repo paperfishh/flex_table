@@ -53,11 +53,13 @@
         return row;
     }
 
-    function font(label, propertyName) {
-        return labelledControl(label, {
+    function font(label, propertyName, disabled) {
+        var row = labelledControl(label, {
             style: $WT.CHARACTERGROUP,
             propertyName: propertyName
         }, 25);
+        row.disabled = !!disabled;
+        return row;
     }
 
     function line(label, propertyName, disabled) {
@@ -312,6 +314,8 @@
                 var fixedRowDisabled = host.getProperty('rowSizing') !== 'fixed';
                 var dataBarsDisabled = host.getProperty('showDataBars') !== 'true';
 
+                var kpiDisabled = host.getProperty('showKpiCards') !== 'true';
+
                 var properties = [
                     {
                         name: 'Theme & Preset Colors',
@@ -331,11 +335,36 @@
                         }]
                     },
                     {
-                        name: 'Advanced Features & Display',
+                        name: 'Top KPI Summary Cards',
                         value: [{
                             style: $WT.EDITORGROUP,
                             items: [
                                 { style: $WT.CHECKBOXANDLABEL, propertyName: 'showKpiCards', labelText: 'Show top KPI summary cards' },
+                                pullDown('Calculation method', 'kpiAggregation', [
+                                    { name: 'Auto (same as Totals)', value: 'auto' },
+                                    { name: 'Sum', value: 'sum' },
+                                    { name: 'Average', value: 'average' },
+                                    { name: 'Minimum', value: 'min' },
+                                    { name: 'Maximum', value: 'max' }
+                                ], kpiDisabled),
+                                pullDown('Card layout', 'kpiLayout', [
+                                    { name: 'Grid (auto wrap)', value: 'grid' },
+                                    { name: 'Scrollable row', value: 'scroll' },
+                                    { name: 'Compact cards', value: 'compact' }
+                                ], kpiDisabled),
+                                { style: $WT.CHECKBOXANDLABEL, propertyName: 'showKpiMinMax', labelText: 'Show Min / Max subtitle', disabled: kpiDisabled },
+                                fill('Card background', 'kpiCardFill', kpiDisabled),
+                                fill('Card border color', 'kpiCardBorderFill', kpiDisabled),
+                                font('Title font', 'kpiTitleFont', kpiDisabled),
+                                font('Value font', 'kpiValueFont', kpiDisabled)
+                            ]
+                        }]
+                    },
+                    {
+                        name: 'Advanced Features & Display',
+                        value: [{
+                            style: $WT.EDITORGROUP,
+                            items: [
                                 { style: $WT.CHECKBOXANDLABEL, propertyName: 'enableKpiIcons', labelText: 'Enable KPI trend icons' }
                             ]
                         }]
