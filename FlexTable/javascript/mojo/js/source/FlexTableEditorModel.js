@@ -281,6 +281,7 @@
                     textBox('Minimum value', prefix + 'min', continuousCustomDisabled),
                     textBox('Maximum value', prefix + 'max', continuousCustomDisabled),
                     fill('Low-value color', prefix + 'lowColor', continuousDisabled),
+                    fill('Mid-value color', prefix + 'midColor', continuousDisabled),
                     fill('High-value color', prefix + 'highColor', continuousDisabled),
                     { style: $WT.LABEL, labelText: 'Staged color (3 stages)' },
                     textBox('Stage 1 upper limit', prefix + 'cutoff1', stagedCustomDisabled),

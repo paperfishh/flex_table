@@ -542,15 +542,23 @@
         return 'rgb(' + color.red + ',' + color.green + ',' + color.blue + ')';
     }
 
-    function interpolateColor(lowColor, highColor, ratio) {
-        var low = parseColor(lowColor, '#f8696b');
-        var high = parseColor(highColor, '#63be7b');
+    function interpolateColor(color1, color2, ratio) {
+        var c1 = parseColor(color1, '#f8696b');
+        var c2 = parseColor(color2, '#63be7b');
         var amount = Math.max(0, Math.min(1, ratio));
         return rgbString({
-            red: Math.round(low.red + (high.red - low.red) * amount),
-            green: Math.round(low.green + (high.green - low.green) * amount),
-            blue: Math.round(low.blue + (high.blue - low.blue) * amount)
+            red: Math.round(c1.red + (c2.red - c1.red) * amount),
+            green: Math.round(c1.green + (c2.green - c1.green) * amount),
+            blue: Math.round(c1.blue + (c2.blue - c1.blue) * amount)
         });
+    }
+
+    function interpolateColor3(lowColor, midColor, highColor, ratio) {
+        var amount = Math.max(0, Math.min(1, ratio));
+        if (amount <= 0.5) {
+            return interpolateColor(lowColor, midColor, amount * 2);
+        }
+        return interpolateColor(midColor, highColor, (amount - 0.5) * 2);
     }
 
     function contrastColor(background) {
@@ -844,6 +852,7 @@
                 cutoff1: optionalNumber(viz.getProperty(prefix + 'cutoff1')),
                 cutoff2: optionalNumber(viz.getProperty(prefix + 'cutoff2')),
                 lowColor: fillColor(viz.getProperty(prefix + 'lowColor'), '#f8696b'),
+                midColor: fillColor(viz.getProperty(prefix + 'midColor'), '#ffeb84'),
                 highColor: fillColor(viz.getProperty(prefix + 'highColor'), '#63be7b'),
                 stage1Color: fillColor(viz.getProperty(prefix + 'stage1Color'), '#f8696b'),
                 stage2Color: fillColor(viz.getProperty(prefix + 'stage2Color'), '#ffeb84'),
@@ -876,7 +885,7 @@
             if (maximum <= minimum) {
                 maximum = minimum + 1;
             }
-            color = interpolateColor(config.lowColor, config.highColor, (value - minimum) / (maximum - minimum));
+            color = interpolateColor3(config.lowColor, config.midColor, config.highColor, (value - minimum) / (maximum - minimum));
         }
 
         if (config.target === 'text') {
@@ -1604,6 +1613,7 @@
                         defaultValues[prefix + 'cutoff1'] = '';
                         defaultValues[prefix + 'cutoff2'] = '';
                         defaultValues[prefix + 'lowColor'] = { fillColor: '#f8696b', fillAlpha: '100' };
+                        defaultValues[prefix + 'midColor'] = { fillColor: '#ffeb84', fillAlpha: '100' };
                         defaultValues[prefix + 'highColor'] = { fillColor: '#63be7b', fillAlpha: '100' };
                         defaultValues[prefix + 'stage1Color'] = { fillColor: '#f8696b', fillAlpha: '100' };
                         defaultValues[prefix + 'stage2Color'] = { fillColor: '#ffeb84', fillAlpha: '100' };
