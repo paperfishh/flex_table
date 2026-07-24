@@ -182,11 +182,12 @@
 
 .FlexTable .flex-table-grid th {
     position: sticky;
-    z-index: 1;
+    z-index: 10;
     top: 0;
     padding: 0;
     border-top: 0;
     color: var(--flex-table-header-font-color, #324a5f);
+    background-color: var(--flex-table-header-color, #f5f8fa);
     background: var(--flex-table-header-color, #f5f8fa);
     font-family: var(--flex-table-header-font-family, Arial);
     font-size: var(--flex-table-header-font-size, 12px);
@@ -200,6 +201,7 @@
 .FlexTable .flex-table-sort {
     display: block;
     width: 100%;
+    height: 100%;
     padding: 8px 10px;
     overflow: hidden;
     border: 0;
@@ -390,17 +392,29 @@
 .FlexTable.flex-table-pinned-col .flex-table-grid td:first-child {
     position: sticky;
     left: 0;
-    z-index: 3;
     box-shadow: 2px 0 5px rgba(0, 0, 0, 0.08);
 }
 
+.FlexTable.flex-table-pinned-col .flex-table-grid td:first-child {
+    z-index: 11;
+    background-color: inherit;
+}
+
 .FlexTable.flex-table-pinned-col .flex-table-grid th:first-child {
-    z-index: 4;
+    z-index: 12;
     background-color: var(--flex-table-header-color, #f5f8fa);
 }
 
-.FlexTable.flex-table-pinned-col .flex-table-grid td:first-child {
-    background-color: inherit;
+.FlexTable .flex-table-grid th.flex-table-header-metric,
+.FlexTable .flex-table-grid th.flex-table-header-attribute {
+    background-color: var(--flex-table-header-color, #f5f8fa);
+    z-index: 10;
+}
+
+.FlexTable.flex-table-pinned-col .flex-table-grid th.flex-table-header-metric:first-child,
+.FlexTable.flex-table-pinned-col .flex-table-grid th.flex-table-header-attribute:first-child {
+    z-index: 12;
+    background-color: var(--flex-table-header-color, #f5f8fa);
 }
 
 /* Column Resizing */
