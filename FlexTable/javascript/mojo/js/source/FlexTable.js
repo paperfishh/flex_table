@@ -138,12 +138,7 @@
         return {
             presetTheme: viz.getProperty('presetTheme') || 'default',
             showKpiCards: getBoolean(viz.getProperty('showKpiCards'), false),
-            showColumnFilters: getBoolean(viz.getProperty('showColumnFilters'), false),
-            showColumnManager: getBoolean(viz.getProperty('showColumnManager'), false),
-            enableTreeGrouping: getBoolean(viz.getProperty('enableTreeGrouping'), false),
-            enableSparklines: getBoolean(viz.getProperty('enableSparklines'), false),
             enableKpiIcons: getBoolean(viz.getProperty('enableKpiIcons'), false),
-            showCopyButton: getBoolean(viz.getProperty('showCopyButton'), true),
             showSearch: getBoolean(viz.getProperty('showSearch'), true),
             showExport: getBoolean(viz.getProperty('showExport'), true),
             enableSelection: getBoolean(viz.getProperty('enableSelection'), true),
@@ -238,43 +233,6 @@
         setStyleVariable(root, '--flex-table-fixed-row-height', settings.fixedRowHeight + 'px');
     }
 
-    function applyColumnFilters(rows, state) {
-        if (!state.columnFilters || !Object.keys(state.columnFilters).length) {
-            return rows;
-        }
-        return rows.filter(function (row) {
-            var matchesAll = true;
-            state.columns.forEach(function (column, colIdx) {
-                if (!matchesAll) {
-                    return;
-                }
-                var filter = state.columnFilters[colIdx];
-                if (!filter) {
-                    return;
-                }
-                var cell = row.cells[colIdx];
-                if (!column.isMetric) {
-                    if (filter.selectedValues && filter.selectedValues.length > 0) {
-                        if (filter.selectedValues.indexOf(cell.display) === -1) {
-                            matchesAll = false;
-                        }
-                    }
-                } else {
-                    var numVal = Number(cell.sortValue);
-                    if (isFinite(numVal)) {
-                        if (filter.min !== null && typeof filter.min !== 'undefined' && numVal < filter.min) {
-                            matchesAll = false;
-                        }
-                        if (filter.max !== null && typeof filter.max !== 'undefined' && numVal > filter.max) {
-                            matchesAll = false;
-                        }
-                    }
-                }
-            });
-            return matchesAll;
-        });
-    }
-
     function getVisibleRows(state) {
         var query = normaliseText(state.query).trim();
         var rows = state.rows.filter(function (row) {
@@ -285,21 +243,6 @@
                 return normaliseText(cell.display).indexOf(query) !== -1;
             });
         });
-
-        rows = applyColumnFilters(rows, state);
-
-        if (state.settings.enableTreeGrouping && state.collapsedGroups) {
-            rows = rows.filter(function (row) {
-                if (state.attributeCount <= 1) {
-                    return true;
-                }
-                var parentKey = row.cells[0].display;
-                if (state.collapsedGroups[parentKey]) {
-                    return false;
-                }
-                return true;
-            });
-        }
 
         if (state.sort.column !== null) {
             rows.sort(function (left, right) {
@@ -541,45 +484,7 @@
         return null;
     }
 
-    function renderSparkline(td, textValue) {
-        if (!textValue) {
-            return;
-        }
-        var textStr = String(textValue).trim();
-        var matches = textStr.match(/-?\d+(?:\.\d+)?/g);
-        if (!matches || matches.length < 2) {
-            return;
-        }
-        var numbers = matches.map(Number).filter(isFinite);
-        if (numbers.length < 2) {
-            return;
-        }
 
-        var min = Math.min.apply(Math, numbers);
-        var max = Math.max.apply(Math, numbers);
-        var range = max > min ? max - min : 1;
-        var width = 64;
-        var height = 18;
-
-        var points = numbers.map(function (val, idx) {
-            var x = (idx / (numbers.length - 1)) * width;
-            var y = height - ((val - min) / range) * (height - 4) - 2;
-            return x.toFixed(1) + ',' + y.toFixed(1);
-        });
-
-        var polylinePoints = points.join(' ');
-        var firstPoint = '0,' + height;
-        var lastPoint = width + ',' + height;
-        var areaPoints = firstPoint + ' ' + polylinePoints + ' ' + lastPoint;
-
-        var svgContainer = document.createElement('span');
-        svgContainer.className = 'flex-table-sparkline';
-        svgContainer.innerHTML = '<svg viewBox="0 0 ' + width + ' ' + height + '" preserveAspectRatio="none">' +
-            '<polygon points="' + areaPoints + '" fill="rgba(47, 128, 237, 0.15)" />' +
-            '<polyline points="' + polylinePoints + '" fill="none" stroke="#2f80ed" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />' +
-            '</svg>';
-        td.appendChild(svgContainer);
-    }
 
     function renderKpiIcon(td, metricConfig, numValue, stats) {
         if (!metricConfig || !metricConfig.kpiIconMode || metricConfig.kpiIconMode === 'none' || !stats || !isFinite(numValue)) {
@@ -1090,17 +995,6 @@
                 render(root, state);
             });
         }
-        if (state.settings.showColumnManager) {
-            createButton(actions, 'flex-table-column-mgr', 'Columns ▾', 'Manage column visibility', function (e) {
-                e.stopPropagation();
-                toggleColumnManagerPopup(actions, state, root);
-            });
-        }
-        if (state.settings.showCopyButton) {
-            createButton(actions, 'flex-table-copy', 'Copy Selected', 'Copy selected rows to clipboard', function () {
-                copySelectedData(state);
-            });
-        }
         if (state.settings.showExport) {
             createButton(actions, 'flex-table-export', 'Export CSV', 'Export filtered table as CSV', function () {
                 exportCsv(state);
@@ -1138,15 +1032,6 @@
                 state.page = 0;
                 render(root, state);
             });
-
-            if (state.settings.showColumnFilters) {
-                var filterBtn = addElement(header, 'span', 'flex-table-filter-btn' + (state.columnFilters && state.columnFilters[columnIndex] ? ' active' : ''), ' 🔍');
-                filterBtn.title = 'Filter column';
-                filterBtn.addEventListener('click', function (e) {
-                    e.stopPropagation();
-                    toggleFilterPopup(header, column, columnIndex, state, root);
-                });
-            }
 
             var resizer = addElement(header, 'div', 'flex-table-resizer');
             resizer.title = 'Drag to resize column';
@@ -1249,20 +1134,6 @@
                 var td = addElement(tr, 'td', cellClass);
 
                 if (!row.isTotal && !column.isMetric) {
-                    if (state.settings.enableTreeGrouping && columnIndex === 0 && state.attributeCount > 1) {
-                        var groupKey = cell.display;
-                        var isCollapsed = state.collapsedGroups && state.collapsedGroups[groupKey];
-                        var treeBtn = addElement(td, 'button', 'flex-table-tree-btn', isCollapsed ? '+' : '-');
-                        treeBtn.type = 'button';
-                        treeBtn.title = isCollapsed ? 'Expand group' : 'Collapse group';
-                        treeBtn.addEventListener('click', function (e) {
-                            e.stopPropagation();
-                            state.collapsedGroups = state.collapsedGroups || {};
-                            state.collapsedGroups[groupKey] = !isCollapsed;
-                            render(root, state);
-                        });
-                    }
-
                     var attrMatch = getAttributeThresholdMatch(state, column, cell.display);
                     if (attrMatch) {
                         if (attrMatch.target === 'badge') {
@@ -1322,10 +1193,6 @@
                     if (state.settings.enableKpiIcons && metricConfig) {
                         var statsKpi = state.metricStats[column.thresholdPrefix];
                         renderKpiIcon(td, metricConfig, Number(cell.sortValue), statsKpi);
-                    }
-
-                    if (state.settings.enableSparklines) {
-                        renderSparkline(td, cell.display);
                     }
 
                     var metricDataBarEnabled = metricConfig ? metricConfig.showDataBar : true;
@@ -1567,12 +1434,7 @@
                     var defaultValues = {
                         presetTheme: 'default',
                         showKpiCards: 'false',
-                        showColumnFilters: 'false',
-                        showColumnManager: 'false',
-                        enableTreeGrouping: 'false',
-                        enableSparklines: 'false',
                         enableKpiIcons: 'false',
-                        showCopyButton: 'true',
                         showSearch: 'true',
                         showExport: 'true',
                         enableSelection: 'true',

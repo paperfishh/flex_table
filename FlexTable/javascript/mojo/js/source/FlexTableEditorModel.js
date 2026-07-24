@@ -336,12 +336,7 @@
                             style: $WT.EDITORGROUP,
                             items: [
                                 { style: $WT.CHECKBOXANDLABEL, propertyName: 'showKpiCards', labelText: 'Show top KPI summary cards' },
-                                { style: $WT.CHECKBOXANDLABEL, propertyName: 'showColumnFilters', labelText: 'Enable column header filters' },
-                                { style: $WT.CHECKBOXANDLABEL, propertyName: 'showColumnManager', labelText: 'Show column manager button' },
-                                { style: $WT.CHECKBOXANDLABEL, propertyName: 'enableTreeGrouping', labelText: 'Enable row grouping & collapse' },
-                                { style: $WT.CHECKBOXANDLABEL, propertyName: 'enableSparklines', labelText: 'Enable metric sparklines' },
-                                { style: $WT.CHECKBOXANDLABEL, propertyName: 'enableKpiIcons', labelText: 'Enable KPI trend icons' },
-                                { style: $WT.CHECKBOXANDLABEL, propertyName: 'showCopyButton', labelText: 'Show Copy Selected button' }
+                                { style: $WT.CHECKBOXANDLABEL, propertyName: 'enableKpiIcons', labelText: 'Enable KPI trend icons' }
                             ]
                         }]
                     },
