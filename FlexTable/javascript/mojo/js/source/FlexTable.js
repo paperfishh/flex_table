@@ -296,11 +296,30 @@
         return prefix + formatted + suffix;
     }
 
+    function getTotalLabel(aggregation) {
+        var agg = String(aggregation || 'sum').toLowerCase();
+        switch (agg) {
+            case 'average':
+            case 'avg':
+                return 'Average';
+            case 'min':
+            case 'minimum':
+                return 'Minimum';
+            case 'max':
+            case 'maximum':
+                return 'Maximum';
+            case 'sum':
+            default:
+                return 'Total';
+        }
+    }
+
     function buildTotalRow(state, rows) {
         var cells = [];
+        var label = getTotalLabel(state.settings.totalAggregation);
         state.columns.forEach(function (column, columnIndex) {
             if (!column.isMetric) {
-                cells.push({ display: columnIndex === 0 ? 'Total' : '', sortValue: '' });
+                cells.push({ display: columnIndex === 0 ? label : '', sortValue: '' });
                 return;
             }
             var numericValues = [];
