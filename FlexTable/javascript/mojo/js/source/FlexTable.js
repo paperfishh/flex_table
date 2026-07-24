@@ -103,18 +103,68 @@
         return 'rgba(' + red + ',' + green + ',' + blue + ',' + alpha + ')';
     }
 
+    function formatFontSize(size, fallback) {
+        if (size === null || typeof size === 'undefined' || size === '') {
+            return fallback;
+        }
+        var str = String(size).trim();
+        if (!str) {
+            return fallback;
+        }
+        if (/^\d+(?:\.\d+)?$/.test(str)) {
+            return str + 'px';
+        }
+        return str;
+    }
+
     function fontSettings(font, defaults) {
         var value = font || {};
+        var family = value.fontFamily || value.family || value.fontName || value.name || defaults.family;
+        var rawSize = value.fontSize !== null && typeof value.fontSize !== 'undefined' ? value.fontSize : (value.size || defaults.size);
+        var size = formatFontSize(rawSize, defaults.size);
+        var color = fillColor(value.fontColor || value.color || value.fc, defaults.color);
+
         var styleCode = parseInt(value.fontStyle, 10);
-        var styleText = String(value.fontStyle || '').toLowerCase();
         var isNumericStyle = isFinite(styleCode);
+        var styleText = String(value.fontStyle || value.style || '').toLowerCase();
+
+        var isBold = getBoolean(value.isBold || value.bold, false) ||
+            styleText.indexOf('bold') !== -1 ||
+            (isNumericStyle && (styleCode & 1) !== 0) ||
+            String(value.fontWeight || value.weight || '').indexOf('bold') !== -1 ||
+            Number(value.fontWeight || value.weight) >= 600;
+
+        var isItalic = getBoolean(value.isItalic || value.italic, false) ||
+            styleText.indexOf('italic') !== -1 ||
+            (isNumericStyle && (styleCode & 2) !== 0) ||
+            String(value.fontStyle || value.style || '').indexOf('italic') !== -1;
+
+        var isUnderline = getBoolean(value.isUnderline || value.underline, false) ||
+            styleText.indexOf('underline') !== -1 ||
+            (isNumericStyle && (styleCode & 4) !== 0) ||
+            String(value.textDecoration || value.decoration || '').indexOf('underline') !== -1;
+
+        var isStrikethrough = getBoolean(value.isStrikeThrough || value.isStrikethrough || value.strikethrough || value.strikeThrough || value.lineThrough, false) ||
+            styleText.indexOf('strike') !== -1 ||
+            styleText.indexOf('line-through') !== -1 ||
+            (isNumericStyle && (styleCode & 8) !== 0) ||
+            String(value.textDecoration || value.decoration || '').indexOf('line-through') !== -1;
+
+        var decorations = [];
+        if (isUnderline) {
+            decorations.push('underline');
+        }
+        if (isStrikethrough) {
+            decorations.push('line-through');
+        }
+
         return {
-            family: value.fontFamily || defaults.family,
-            size: value.fontSize || defaults.size,
-            color: value.fontColor || defaults.color,
-            weight: styleText.indexOf('bold') !== -1 || (isNumericStyle && (styleCode & 1)) ? '700' : '400',
-            style: styleText.indexOf('italic') !== -1 || (isNumericStyle && (styleCode & 2)) ? 'italic' : 'normal',
-            decoration: styleText.indexOf('underline') !== -1 || (isNumericStyle && (styleCode & 4)) ? 'underline' : 'none'
+            family: family,
+            size: size,
+            color: color,
+            weight: isBold ? '700' : '400',
+            style: isItalic ? 'italic' : 'normal',
+            decoration: decorations.length ? decorations.join(' ') : 'none'
         };
     }
 

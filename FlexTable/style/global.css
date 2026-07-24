@@ -209,6 +209,7 @@
     background: transparent;
     cursor: pointer;
     font: inherit;
+    text-decoration: inherit;
     text-align: inherit;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -219,13 +220,7 @@
 }
 
 .FlexTable .flex-table-grid tbody tr {
-    color: var(--flex-table-value-font-color, #1f2937);
     background: var(--flex-table-row-color, #ffffff);
-    font-family: var(--flex-table-value-font-family, Arial);
-    font-size: var(--flex-table-value-font-size, 12px);
-    font-style: var(--flex-table-value-font-style, normal);
-    font-weight: var(--flex-table-value-font-weight, 400);
-    text-decoration: var(--flex-table-value-text-decoration, none);
 }
 
 .FlexTable .flex-table-grid tbody tr:nth-child(even):not(.flex-table-total-row) {
@@ -241,6 +236,12 @@
 }
 
 .FlexTable .flex-table-grid td {
+    color: var(--flex-table-value-font-color, #1f2937);
+    font-family: var(--flex-table-value-font-family, Arial);
+    font-size: var(--flex-table-value-font-size, 12px);
+    font-style: var(--flex-table-value-font-style, normal);
+    font-weight: var(--flex-table-value-font-weight, 400);
+    text-decoration: var(--flex-table-value-text-decoration, none);
     vertical-align: var(--flex-table-value-v-align, middle);
 }
 
@@ -253,6 +254,8 @@
     font-variant-numeric: tabular-nums;
 }
 
+.FlexTable .flex-table-grid tr.flex-table-total-row td,
+.FlexTable .flex-table-total-row td,
 .FlexTable .flex-table-total-row {
     color: var(--flex-table-total-font-color, #1f2937) !important;
     background: var(--flex-table-total-color, #eef3f7) !important;
