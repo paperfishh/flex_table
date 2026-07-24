@@ -170,13 +170,66 @@
 
     function lineSettings(line, fallbackColor) {
         var value = line || {};
-        var styleText = String(value.lineStyle || 'solid').toLowerCase();
-        var style = styleText.indexOf('dash') !== -1 ? 'dashed' : (styleText.indexOf('dot') !== -1 ? 'dotted' : 'solid');
-        var widthMatch = styleText.match(/(\d+(?:\.\d+)?)/);
+        var rawStyle = typeof value.lineStyle !== 'undefined' && value.lineStyle !== null ? value.lineStyle : (value.style || value.pattern || value.type || 'solid');
+        var rawWidth = typeof value.lineWidth !== 'undefined' && value.lineWidth !== null ? value.lineWidth : (value.width || value.weight || value.size || null);
+        var rawColor = value.lineColor || value.color || value.lc || value.clr || value.fillColor || fallbackColor;
+
+        var styleText = String(rawStyle).toLowerCase().trim();
+        var styleCode = parseInt(rawStyle, 10);
+        var isNumericStyle = isFinite(styleCode);
+
+        var style = 'solid';
+        var width = '1px';
+
+        if (isNumericStyle) {
+            switch (styleCode) {
+                case 0:
+                    style = 'none';
+                    break;
+                case 2:
+                    style = 'dashed';
+                    break;
+                case 3:
+                    style = 'dotted';
+                    break;
+                case 4:
+                    style = 'double';
+                    break;
+                case 1:
+                default:
+                    style = 'solid';
+                    break;
+            }
+        } else {
+            if (styleText.indexOf('none') !== -1) {
+                style = 'none';
+            } else if (styleText.indexOf('dash') !== -1) {
+                style = 'dashed';
+            } else if (styleText.indexOf('dot') !== -1) {
+                style = 'dotted';
+            } else if (styleText.indexOf('double') !== -1) {
+                style = 'double';
+            } else {
+                style = 'solid';
+            }
+        }
+
+        if (rawWidth !== null && typeof rawWidth !== 'undefined' && rawWidth !== '') {
+            var parsedWidth = parseFloat(rawWidth);
+            if (isFinite(parsedWidth) && parsedWidth > 0) {
+                width = parsedWidth + 'px';
+            }
+        } else if (!isNumericStyle) {
+            var widthMatch = styleText.match(/(\d+(?:\.\d+)?)\s*px/);
+            if (widthMatch) {
+                width = widthMatch[1] + 'px';
+            }
+        }
+
         return {
-            color: value.lineColor || fallbackColor,
+            color: fillColor(rawColor, fallbackColor),
             style: style,
-            width: widthMatch ? widthMatch[1] + 'px' : '1px'
+            width: width
         };
     }
 
