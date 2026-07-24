@@ -185,30 +185,47 @@
             switch (styleCode) {
                 case 0:
                     style = 'none';
-                    break;
-                case 2:
-                    style = 'dashed';
-                    break;
-                case 3:
-                    style = 'dotted';
-                    break;
-                case 4:
-                    style = 'double';
+                    width = '0px';
                     break;
                 case 1:
+                    style = 'solid';
+                    width = '1px';
+                    break;
+                case 2:
+                    style = 'solid';
+                    width = '2px';
+                    break;
+                case 3:
+                    style = 'dashed';
+                    width = '1px';
+                    break;
+                case 4:
+                    style = 'dotted';
+                    width = '1px';
+                    break;
+                case 5:
+                    style = 'double';
+                    width = '3px';
+                    break;
                 default:
                     style = 'solid';
+                    width = '1px';
                     break;
             }
         } else {
             if (styleText.indexOf('none') !== -1) {
                 style = 'none';
+                width = '0px';
             } else if (styleText.indexOf('dash') !== -1) {
                 style = 'dashed';
             } else if (styleText.indexOf('dot') !== -1) {
                 style = 'dotted';
             } else if (styleText.indexOf('double') !== -1) {
                 style = 'double';
+                width = '3px';
+            } else if (styleText.indexOf('bold') !== -1 || styleText.indexOf('thick') !== -1 || styleText.indexOf('heavy') !== -1) {
+                style = 'solid';
+                width = '2px';
             } else {
                 style = 'solid';
             }
