@@ -493,19 +493,18 @@
             var prefix = column.thresholdPrefix;
             var rules = [];
             var ruleIndex;
-            var defaultBgs = ['#e0f2fe', '#dcfce7', '#fef3c7', '#fee2e2', '#f3e8ff'];
-            var defaultColors = ['#0369a1', '#15803d', '#b45309', '#b91c1c', '#6b21a8'];
-            for (ruleIndex = 1; ruleIndex <= 5; ruleIndex += 1) {
+            var defaultBgs = ['#e0f2fe', '#dcfce7', '#fef3c7', '#fee2e2', '#f3e8ff', '#e0e7ff', '#fce7f3', '#fef9c3', '#ccfbf1', '#f3f4f6'];
+            var defaultColors = ['#0369a1', '#15803d', '#b45309', '#b91c1c', '#6b21a8', '#3730a3', '#9d174d', '#854d0e', '#115e59', '#374151'];
+            for (ruleIndex = 1; ruleIndex <= 10; ruleIndex += 1) {
                 var ruleText = String(viz.getProperty(prefix + 'attr_rule' + ruleIndex + '_text') || '').trim();
                 rules.push({
                     text: ruleText,
-                    bg: fillColor(viz.getProperty(prefix + 'attr_rule' + ruleIndex + '_bg'), defaultBgs[ruleIndex - 1]),
-                    color: fillColor(viz.getProperty(prefix + 'attr_rule' + ruleIndex + '_color'), defaultColors[ruleIndex - 1])
+                    bg: fillColor(viz.getProperty(prefix + 'attr_rule' + ruleIndex + '_bg'), defaultBgs[(ruleIndex - 1) % defaultBgs.length]),
+                    color: fillColor(viz.getProperty(prefix + 'attr_rule' + ruleIndex + '_color'), defaultColors[(ruleIndex - 1) % defaultColors.length])
                 });
             }
             thresholds[prefix] = {
                 enabled: getBoolean(viz.getProperty(prefix + 'attr_enabled'), false),
-                matchMode: viz.getProperty(prefix + 'attr_matchMode') || 'exact',
                 target: viz.getProperty(prefix + 'attr_target') || 'badge',
                 rules: rules
             };
@@ -525,15 +524,7 @@
                 return false;
             }
             var targetLower = rule.text.toLowerCase();
-            var isMatch = false;
-            if (config.matchMode === 'contains') {
-                isMatch = valLower.indexOf(targetLower) !== -1;
-            } else if (config.matchMode === 'startsWith') {
-                isMatch = valLower.indexOf(targetLower) === 0;
-            } else {
-                isMatch = valLower === targetLower;
-            }
-            if (isMatch) {
+            if (valLower === targetLower) {
                 matchedRule = rule;
                 return true;
             }
@@ -1627,15 +1618,14 @@
                         var prefix = column.thresholdPrefix;
                         if (!column.isMetric) {
                             defaultValues[prefix + 'attr_enabled'] = 'false';
-                            defaultValues[prefix + 'attr_matchMode'] = 'exact';
                             defaultValues[prefix + 'attr_target'] = 'badge';
                             var ruleIndex;
-                            var defaultBgs = ['#e0f2fe', '#dcfce7', '#fef3c7', '#fee2e2', '#f3e8ff'];
-                            var defaultColors = ['#0369a1', '#15803d', '#b45309', '#b91c1c', '#6b21a8'];
-                            for (ruleIndex = 1; ruleIndex <= 5; ruleIndex += 1) {
+                            var defaultBgs = ['#e0f2fe', '#dcfce7', '#fef3c7', '#fee2e2', '#f3e8ff', '#e0e7ff', '#fce7f3', '#fef9c3', '#ccfbf1', '#f3f4f6'];
+                            var defaultColors = ['#0369a1', '#15803d', '#b45309', '#b91c1c', '#6b21a8', '#3730a3', '#9d174d', '#854d0e', '#115e59', '#374151'];
+                            for (ruleIndex = 1; ruleIndex <= 10; ruleIndex += 1) {
                                 defaultValues[prefix + 'attr_rule' + ruleIndex + '_text'] = '';
-                                defaultValues[prefix + 'attr_rule' + ruleIndex + '_bg'] = { fillColor: defaultBgs[ruleIndex - 1], fillAlpha: '100' };
-                                defaultValues[prefix + 'attr_rule' + ruleIndex + '_color'] = { fillColor: defaultColors[ruleIndex - 1], fillAlpha: '100' };
+                                defaultValues[prefix + 'attr_rule' + ruleIndex + '_bg'] = { fillColor: defaultBgs[(ruleIndex - 1) % defaultBgs.length], fillAlpha: '100' };
+                                defaultValues[prefix + 'attr_rule' + ruleIndex + '_color'] = { fillColor: defaultColors[(ruleIndex - 1) % defaultColors.length], fillAlpha: '100' };
                             }
                             return;
                         }

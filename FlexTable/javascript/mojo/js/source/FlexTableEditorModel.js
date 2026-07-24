@@ -78,137 +78,211 @@
         return row;
     }
 
-    function attributeThresholdGroups(host) {
+    function attributeThresholdGroup(host) {
         var state = host._flexTableState;
         var columns = state && state.columns ? state.columns : [];
-        var groups = [];
-        var seen = {};
+        var attrColumns = [];
+        var seenPrefix = {};
 
-        columns.forEach(function (column) {
-            if (column.isMetric || !column.thresholdPrefix || seen[column.thresholdPrefix]) {
-                return;
+        columns.forEach(function (column, idx) {
+            if (!column.isMetric && column.thresholdPrefix && !seenPrefix[column.thresholdPrefix]) {
+                seenPrefix[column.thresholdPrefix] = true;
+                attrColumns.push({ column: column, index: idx });
             }
-            var prefix = column.thresholdPrefix;
-            seen[prefix] = true;
-            var enabled = host.getProperty(prefix + 'attr_enabled') === 'true';
-
-            var groupItems = [
-                { style: $WT.CHECKBOXANDLABEL, propertyName: prefix + 'attr_enabled', labelText: 'Enable threshold for ' + column.name },
-                pullDown('Match mode', prefix + 'attr_matchMode', [
-                    { name: 'Exact match', value: 'exact' },
-                    { name: 'Contains text', value: 'contains' },
-                    { name: 'Starts with text', value: 'startsWith' }
-                ], !enabled),
-                pullDown('Apply style to', prefix + 'attr_target', [
-                    { name: 'Status Badge / Tag', value: 'badge' },
-                    { name: 'Cell background', value: 'cell' },
-                    { name: 'Text color', value: 'text' },
-                    { name: 'Entire row background', value: 'row' }
-                ], !enabled)
-            ];
-
-            var ruleIndex;
-            for (ruleIndex = 1; ruleIndex <= 5; ruleIndex += 1) {
-                groupItems.push({ style: $WT.LABEL, labelText: 'Category Rule ' + ruleIndex });
-                groupItems.push(textBox('Match value', prefix + 'attr_rule' + ruleIndex + '_text', !enabled));
-                groupItems.push(fill('Background color', prefix + 'attr_rule' + ruleIndex + '_bg', !enabled));
-                groupItems.push(fill('Text color', prefix + 'attr_rule' + ruleIndex + '_color', !enabled));
-            }
-
-            groups.push({
-                name: 'Attribute Threshold - ' + column.name,
-                value: [{
-                    style: $WT.EDITORGROUP,
-                    items: groupItems
-                }]
-            });
         });
 
-        return groups;
-    }
-
-    function thresholdGroups(host) {
-        var state = host._flexTableState;
-        var columns = state && state.columns ? state.columns : [];
-        var groups = [];
-        var seen = {};
-        var globalDataBarsEnabled = host.getProperty('showDataBars') === 'true';
-
-        columns.forEach(function (column) {
-            if (!column.isMetric || !column.thresholdPrefix || seen[column.thresholdPrefix]) {
-                return;
-            }
-            var prefix = column.thresholdPrefix;
-            seen[prefix] = true;
-            var enabled = host.getProperty(prefix + 'enabled') === 'true';
-            var showDataBar = host.getProperty(prefix + 'showDataBar') !== 'false';
-            var mode = host.getProperty(prefix + 'mode') || 'continuous';
-            var rangeMode = host.getProperty(prefix + 'rangeMode') || 'auto';
-            var continuousDisabled = !enabled || mode !== 'continuous';
-            var stagedDisabled = !enabled || mode !== 'staged';
-            var continuousCustomDisabled = continuousDisabled || rangeMode !== 'custom';
-            var stagedCustomDisabled = stagedDisabled || rangeMode !== 'custom';
-            var dataBarDisabled = !globalDataBarsEnabled || !showDataBar;
-
-            groups.push({
-                name: 'Metric - ' + column.name,
+        if (attrColumns.length === 0) {
+            return {
+                name: 'Attribute Threshold',
                 value: [{
                     style: $WT.EDITORGROUP,
                     items: [
-                        { style: $WT.LABEL, labelText: 'Data Bar Options' },
-                        { style: $WT.CHECKBOXANDLABEL, propertyName: prefix + 'showDataBar', labelText: 'Show data bar for ' + column.name },
-                        fill('Bar primary color', prefix + 'dataBarColor', dataBarDisabled),
-                        fill('Bar gradient color', prefix + 'dataBarGradientColor', dataBarDisabled),
-
-                        { style: $WT.LABEL, labelText: 'KPI Trend Icons' },
-                        pullDown('Trend icon set', prefix + 'kpiIconMode', [
-                            { name: 'None', value: 'none' },
-                            { name: 'Arrows (🔼 🔽 ◀▶)', value: 'arrows' },
-                            { name: 'Traffic Lights (🔴 🟡 🟢)', value: 'traffic' },
-                            { name: 'Status Symbols (✅ ⚠️ ❌)', value: 'status' },
-                            { name: 'Stars (⭐)', value: 'stars' }
-                        ]),
-
-                        { style: $WT.LABEL, labelText: 'Numeric Threshold' },
-                        { style: $WT.CHECKBOXANDLABEL, propertyName: prefix + 'enabled', labelText: 'Enable threshold for ' + column.name },
-                        pullDown('Mode', prefix + 'mode', [
-                            { name: 'Continuous color', value: 'continuous' },
-                            { name: 'Staged color', value: 'staged' }
-                        ], !enabled),
-                        pullDown('Apply color to', prefix + 'target', [
-                            { name: 'Cell background', value: 'background' },
-                            { name: 'Metric text', value: 'text' }
-                        ], !enabled),
-                        pullDown(mode === 'staged' ? 'Cutoff values' : 'Value range', prefix + 'rangeMode', [
-                            { name: 'Automatic from data', value: 'auto' },
-                            { name: 'Custom values', value: 'custom' }
-                        ], !enabled),
-                        { style: $WT.LABEL, labelText: 'Continuous color' },
-                        textBox('Minimum value', prefix + 'min', continuousCustomDisabled),
-                        textBox('Maximum value', prefix + 'max', continuousCustomDisabled),
-                        fill('Low-value color', prefix + 'lowColor', continuousDisabled),
-                        fill('High-value color', prefix + 'highColor', continuousDisabled),
-                        { style: $WT.LABEL, labelText: 'Staged color (3 stages)' },
-                        textBox('Stage 1 upper limit', prefix + 'cutoff1', stagedCustomDisabled),
-                        textBox('Stage 2 upper limit', prefix + 'cutoff2', stagedCustomDisabled),
-                        fill('Stage 1 color', prefix + 'stage1Color', stagedDisabled),
-                        fill('Stage 2 color', prefix + 'stage2Color', stagedDisabled),
-                        fill('Stage 3 color', prefix + 'stage3Color', stagedDisabled)
+                        { style: $WT.LABEL, labelText: 'Add at least one attribute to configure attribute threshold.' }
                     ]
                 }]
-            });
+            };
+        }
+
+        var attrPulldownItems = attrColumns.map(function (item) {
+            return { name: item.column.name, value: item.column.thresholdPrefix };
         });
 
-        if (!groups.length) {
-            groups.push({
-                name: 'Metric Options',
-                value: [{
-                    style: $WT.EDITORGROUP,
-                    items: [{ style: $WT.LABEL, labelText: 'Add at least one metric to configure metric settings.' }]
-                }]
+        var selectedPrefix = host.getProperty('selectedAttributeCol');
+        var selectedItem = attrColumns[0];
+        if (selectedPrefix) {
+            var found = attrColumns.filter(function (item) {
+                return item.column.thresholdPrefix === selectedPrefix;
+            })[0];
+            if (found) {
+                selectedItem = found;
+            }
+        }
+
+        var column = selectedItem.column;
+        var colIndex = selectedItem.index;
+        var prefix = column.thresholdPrefix;
+        var enabled = host.getProperty(prefix + 'attr_enabled') === 'true';
+
+        // Extract unique values from data for this attribute column
+        var uniqueValues = [];
+        var valueSet = {};
+        if (state && state.rows) {
+            state.rows.forEach(function (row) {
+                if (row.cells && row.cells[colIndex]) {
+                    var val = String(row.cells[colIndex].display || row.cells[colIndex].sortValue || '').trim();
+                    if (val && !valueSet[val]) {
+                        valueSet[val] = true;
+                        uniqueValues.push(val);
+                    }
+                }
             });
         }
-        return groups;
+
+        var groupItems = [
+            pullDown('Select Attribute', 'selectedAttributeCol', attrPulldownItems),
+            { style: $WT.CHECKBOXANDLABEL, propertyName: prefix + 'attr_enabled', labelText: 'Enable threshold for ' + column.name },
+            pullDown('Apply style to', prefix + 'attr_target', [
+                { name: 'Status Badge / Tag', value: 'badge' },
+                { name: 'Cell background', value: 'cell' },
+                { name: 'Text color', value: 'text' },
+                { name: 'Entire row background', value: 'row' }
+            ], !enabled)
+        ];
+
+        var ruleIndex;
+        for (ruleIndex = 1; ruleIndex <= 10; ruleIndex += 1) {
+            var savedVal = host.getProperty(prefix + 'attr_rule' + ruleIndex + '_text') || '';
+            var dropdownItems = [{ name: '-- Select Value --', value: '' }];
+            var addedValues = {};
+
+            if (savedVal && !addedValues[savedVal]) {
+                addedValues[savedVal] = true;
+                dropdownItems.push({ name: savedVal, value: savedVal });
+            }
+
+            uniqueValues.forEach(function (v) {
+                if (!addedValues[v]) {
+                    addedValues[v] = true;
+                    dropdownItems.push({ name: v, value: v });
+                }
+            });
+
+            groupItems.push({ style: $WT.LABEL, labelText: 'Category Rule ' + ruleIndex });
+            groupItems.push(pullDown('Select Value', prefix + 'attr_rule' + ruleIndex + '_text', dropdownItems, !enabled));
+            groupItems.push(fill('Background color', prefix + 'attr_rule' + ruleIndex + '_bg', !enabled));
+            groupItems.push(fill('Text color', prefix + 'attr_rule' + ruleIndex + '_color', !enabled));
+        }
+
+        return {
+            name: 'Attribute Threshold',
+            value: [{
+                style: $WT.EDITORGROUP,
+                items: groupItems
+            }]
+        };
+    }
+
+    function metricThresholdGroup(host) {
+        var state = host._flexTableState;
+        var columns = state && state.columns ? state.columns : [];
+        var metricColumns = [];
+        var seenPrefix = {};
+        var globalDataBarsEnabled = host.getProperty('showDataBars') === 'true';
+
+        columns.forEach(function (column) {
+            if (column.isMetric && column.thresholdPrefix && !seenPrefix[column.thresholdPrefix]) {
+                seenPrefix[column.thresholdPrefix] = true;
+                metricColumns.push(column);
+            }
+        });
+
+        if (metricColumns.length === 0) {
+            return {
+                name: 'Metric Threshold',
+                value: [{
+                    style: $WT.EDITORGROUP,
+                    items: [
+                        { style: $WT.LABEL, labelText: 'Add at least one metric to configure metric threshold.' }
+                    ]
+                }]
+            };
+        }
+
+        var metricPulldownItems = metricColumns.map(function (col) {
+            return { name: col.name, value: col.thresholdPrefix };
+        });
+
+        var selectedPrefix = host.getProperty('selectedMetricCol');
+        var selectedCol = metricColumns[0];
+        if (selectedPrefix) {
+            var found = metricColumns.filter(function (col) {
+                return col.thresholdPrefix === selectedPrefix;
+            })[0];
+            if (found) {
+                selectedCol = found;
+            }
+        }
+
+        var column = selectedCol;
+        var prefix = column.thresholdPrefix;
+        var enabled = host.getProperty(prefix + 'enabled') === 'true';
+        var showDataBar = host.getProperty(prefix + 'showDataBar') !== 'false';
+        var mode = host.getProperty(prefix + 'mode') || 'continuous';
+        var rangeMode = host.getProperty(prefix + 'rangeMode') || 'auto';
+        var continuousDisabled = !enabled || mode !== 'continuous';
+        var stagedDisabled = !enabled || mode !== 'staged';
+        var continuousCustomDisabled = continuousDisabled || rangeMode !== 'custom';
+        var stagedCustomDisabled = stagedDisabled || rangeMode !== 'custom';
+        var dataBarDisabled = !globalDataBarsEnabled || !showDataBar;
+
+        return {
+            name: 'Metric Threshold',
+            value: [{
+                style: $WT.EDITORGROUP,
+                items: [
+                    pullDown('Select Metric', 'selectedMetricCol', metricPulldownItems),
+                    { style: $WT.LABEL, labelText: 'Data Bar Options' },
+                    { style: $WT.CHECKBOXANDLABEL, propertyName: prefix + 'showDataBar', labelText: 'Show data bar for ' + column.name },
+                    fill('Bar primary color', prefix + 'dataBarColor', dataBarDisabled),
+                    fill('Bar gradient color', prefix + 'dataBarGradientColor', dataBarDisabled),
+
+                    { style: $WT.LABEL, labelText: 'KPI Trend Icons' },
+                    pullDown('Trend icon set', prefix + 'kpiIconMode', [
+                        { name: 'None', value: 'none' },
+                        { name: 'Arrows (🔼 🔽 ◀▶)', value: 'arrows' },
+                        { name: 'Traffic Lights (🔴 🟡 🟢)', value: 'traffic' },
+                        { name: 'Status Symbols (✅ ⚠️ ❌)', value: 'status' },
+                        { name: 'Stars (⭐)', value: 'stars' }
+                    ]),
+
+                    { style: $WT.LABEL, labelText: 'Numeric Threshold' },
+                    { style: $WT.CHECKBOXANDLABEL, propertyName: prefix + 'enabled', labelText: 'Enable threshold for ' + column.name },
+                    pullDown('Mode', prefix + 'mode', [
+                        { name: 'Continuous color', value: 'continuous' },
+                        { name: 'Staged color', value: 'staged' }
+                    ], !enabled),
+                    pullDown('Apply color to', prefix + 'target', [
+                        { name: 'Cell background', value: 'background' },
+                        { name: 'Metric text', value: 'text' }
+                    ], !enabled),
+                    pullDown(mode === 'staged' ? 'Cutoff values' : 'Value range', prefix + 'rangeMode', [
+                        { name: 'Automatic from data', value: 'auto' },
+                        { name: 'Custom values', value: 'custom' }
+                    ], !enabled),
+                    { style: $WT.LABEL, labelText: 'Continuous color' },
+                    textBox('Minimum value', prefix + 'min', continuousCustomDisabled),
+                    textBox('Maximum value', prefix + 'max', continuousCustomDisabled),
+                    fill('Low-value color', prefix + 'lowColor', continuousDisabled),
+                    fill('High-value color', prefix + 'highColor', continuousDisabled),
+                    { style: $WT.LABEL, labelText: 'Staged color (3 stages)' },
+                    textBox('Stage 1 upper limit', prefix + 'cutoff1', stagedCustomDisabled),
+                    textBox('Stage 2 upper limit', prefix + 'cutoff2', stagedCustomDisabled),
+                    fill('Stage 1 color', prefix + 'stage1Color', stagedDisabled),
+                    fill('Stage 2 color', prefix + 'stage2Color', stagedDisabled),
+                    fill('Stage 3 color', prefix + 'stage3Color', stagedDisabled)
+                ]
+            }]
+        };
     }
 
     var horizontalAlignment = [
@@ -390,7 +464,7 @@
                         }]
                     }
                 ];
-                return properties.concat(attributeThresholdGroups(host)).concat(thresholdGroups(host));
+                return properties.concat([attributeThresholdGroup(host), metricThresholdGroup(host)]);
             }
         }
     );
