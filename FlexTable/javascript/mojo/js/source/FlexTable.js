@@ -827,11 +827,14 @@
             var prefix = column.thresholdPrefix;
             var barColorVal = viz.getProperty(prefix + 'dataBarColor');
             var barGradColorVal = viz.getProperty(prefix + 'dataBarGradientColor');
+            var barNegColorVal = viz.getProperty(prefix + 'dataBarNegativeColor');
             thresholds[prefix] = {
-                showDataBar: getBoolean(viz.getProperty(prefix + 'showDataBar'), true),
+                showDataBar: getBoolean(viz.getProperty(prefix + 'showDataBar'), false),
+                dataBarMode: viz.getProperty(prefix + 'dataBarMode') || 'fill',
+                dataBarColor: barColorVal ? fillColor(barColorVal) : '#2f80ed',
+                dataBarGradientColor: barGradColorVal ? fillColor(barGradColorVal) : '#00c6ff',
+                dataBarNegativeColor: barNegColorVal ? fillColor(barNegColorVal) : '#ef4444',
                 kpiIconMode: viz.getProperty(prefix + 'kpiIconMode') || 'none',
-                dataBarColor: barColorVal ? fillColor(barColorVal) : null,
-                dataBarGradientColor: barGradColorVal ? fillColor(barGradColorVal) : null,
                 enabled: getBoolean(viz.getProperty(prefix + 'enabled'), false),
                 mode: viz.getProperty(prefix + 'mode') || 'continuous',
                 target: viz.getProperty(prefix + 'target') || 'background',
@@ -1287,8 +1290,8 @@
                         renderKpiIcon(td, metricConfig, Number(cell.sortValue), statsKpi);
                     }
 
-                    var metricDataBarEnabled = metricConfig ? metricConfig.showDataBar : true;
-                    if (state.settings.showDataBars && metricDataBarEnabled && !thresholdStyle) {
+                    var metricDataBarEnabled = metricConfig ? metricConfig.showDataBar : false;
+                    if (metricDataBarEnabled && !thresholdStyle) {
                         var stats = state.metricStats[column.thresholdPrefix];
                         var numValue = Number(cell.sortValue);
                         renderDataBar(td, numValue, stats, state.settings, metricConfig || {});

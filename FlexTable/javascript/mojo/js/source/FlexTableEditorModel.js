@@ -228,14 +228,14 @@
         var column = selectedCol;
         var prefix = column.thresholdPrefix;
         var enabled = host.getProperty(prefix + 'enabled') === 'true';
-        var showDataBar = host.getProperty(prefix + 'showDataBar') !== 'false';
+        var showDataBar = host.getProperty(prefix + 'showDataBar') === 'true';
         var mode = host.getProperty(prefix + 'mode') || 'continuous';
         var rangeMode = host.getProperty(prefix + 'rangeMode') || 'auto';
         var continuousDisabled = !enabled || mode !== 'continuous';
         var stagedDisabled = !enabled || mode !== 'staged';
         var continuousCustomDisabled = continuousDisabled || rangeMode !== 'custom';
         var stagedCustomDisabled = stagedDisabled || rangeMode !== 'custom';
-        var dataBarDisabled = !globalDataBarsEnabled || !showDataBar;
+        var dataBarDisabled = !showDataBar;
 
         return {
             name: 'Metric Threshold',
@@ -245,8 +245,14 @@
                     pullDown('Select Metric', 'selectedMetricCol', metricPulldownItems),
                     { style: $WT.LABEL, labelText: 'Data Bar Options' },
                     { style: $WT.CHECKBOXANDLABEL, propertyName: prefix + 'showDataBar', labelText: 'Show data bar for ' + column.name },
+                    pullDown('Data bar style', prefix + 'dataBarMode', [
+                        { name: 'Cell Fill (Gradient)', value: 'fill' },
+                        { name: 'Floating Capsule Bar', value: 'capsule' },
+                        { name: 'Bottom Indicator Line', value: 'bottomPill' }
+                    ], dataBarDisabled),
                     fill('Bar primary color', prefix + 'dataBarColor', dataBarDisabled),
                     fill('Bar gradient color', prefix + 'dataBarGradientColor', dataBarDisabled),
+                    fill('Negative bar color', prefix + 'dataBarNegativeColor', dataBarDisabled),
 
                     { style: $WT.LABEL, labelText: 'KPI Trend Icons' },
                     pullDown('Trend icon set', prefix + 'kpiIconMode', [
@@ -312,7 +318,6 @@
                 var totalDisabled = host.getProperty('showTotal') !== 'true';
                 var fixedColumnDisabled = host.getProperty('columnSizing') !== 'fixed';
                 var fixedRowDisabled = host.getProperty('rowSizing') !== 'fixed';
-                var dataBarsDisabled = host.getProperty('showDataBars') !== 'true';
 
                 var kpiDisabled = host.getProperty('showKpiCards') !== 'true';
 
@@ -410,17 +415,7 @@
                                 pullDown('Metric alignment', 'metricHAlign', horizontalAlignment),
                                 pullDown('Vertical align', 'valueVAlign', verticalAlignment),
                                 { style: $WT.CHECKBOXANDLABEL, propertyName: 'valueWrap', labelText: 'Wrap row values' },
-                                { style: $WT.CHECKBOXANDLABEL, propertyName: 'mergeRepetitive', labelText: 'Merge repetitive attribute cells' },
-                                { style: $WT.CHECKBOXANDLABEL, propertyName: 'showDataBars', labelText: 'Show metric data bars' },
-                                pullDown('Data bar style', 'dataBarMode', [
-                                    { name: 'Cell Fill (Gradient)', value: 'fill' },
-                                    { name: 'Floating Capsule Bar', value: 'capsule' },
-                                    { name: 'Bottom Indicator Line', value: 'bottomPill' }
-                                ], dataBarsDisabled),
-                                { style: $WT.CHECKBOXANDLABEL, propertyName: 'dataBarUseGradient', labelText: 'Use gradient fill' },
-                                fill('Primary bar color', 'dataBarFill', dataBarsDisabled),
-                                fill('Gradient end color', 'dataBarGradientFill', dataBarsDisabled),
-                                fill('Negative bar color', 'dataBarNegativeFill', dataBarsDisabled)
+                                { style: $WT.CHECKBOXANDLABEL, propertyName: 'mergeRepetitive', labelText: 'Merge repetitive attribute cells' }
                             ]
                         }]
                     },
