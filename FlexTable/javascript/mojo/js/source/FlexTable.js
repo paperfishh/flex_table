@@ -141,7 +141,6 @@
             enableKpiIcons: getBoolean(viz.getProperty('enableKpiIcons'), false),
             showSearch: getBoolean(viz.getProperty('showSearch'), true),
             showExport: getBoolean(viz.getProperty('showExport'), true),
-            enableSelection: getBoolean(viz.getProperty('enableSelection'), true),
             enablePagination: getBoolean(viz.getProperty('enablePagination'), true),
             configuredPageSize: getNumber(viz.getProperty('pageSize'), 25),
             showBanding: getBoolean(viz.getProperty('showBanding'), true),
@@ -565,49 +564,6 @@
             addElement(card, 'div', 'flex-table-kpi-value', formatted);
             addElement(card, 'div', 'flex-table-kpi-sub', 'Min: ' + stats.min.toLocaleString() + ' | Max: ' + stats.max.toLocaleString());
         });
-    }
-
-    function copySelectedData(state) {
-        var visibleRows = getVisibleRows(state);
-        var exportRows = visibleRows;
-
-        if (state.selectedRowKey !== null) {
-            exportRows = visibleRows.filter(function (row) {
-                var rowKey = row.cells.slice(0, state.attributeCount).map(function (c) { return c.display; }).join('||');
-                return rowKey === state.selectedRowKey;
-            });
-        }
-
-        var lines = [state.columns.map(function (col) { return col.name; }).join('\t')];
-        exportRows.forEach(function (row) {
-            lines.push(row.cells.map(function (cell) { return cell.display; }).join('\t'));
-        });
-
-        var textToCopy = lines.join('\r\n');
-
-        if (navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
-            navigator.clipboard.writeText(textToCopy).then(function () {
-                alert('Copied ' + exportRows.length + ' row(s) to clipboard!');
-            }).catch(function () {
-                fallbackCopyText(textToCopy, exportRows.length);
-            });
-        } else {
-            fallbackCopyText(textToCopy, exportRows.length);
-        }
-    }
-
-    function fallbackCopyText(text, rowCount) {
-        var textarea = document.createElement('textarea');
-        textarea.value = text;
-        textarea.style.position = 'fixed';
-        textarea.style.opacity = '0';
-        document.body.appendChild(textarea);
-        textarea.select();
-        try {
-            document.execCommand('copy');
-            alert('Copied ' + rowCount + ' row(s) to clipboard!');
-        } catch (ignore) {}
-        document.body.removeChild(textarea);
     }
 
     function renderDataBar(td, numValue, stats, globalSettings, metricSettings) {
@@ -1069,37 +1025,8 @@
         var mergeSpans = state.settings.mergeRepetitive ? buildMergeSpans(pageRows, state.attributeCount) : null;
 
         function appendDataRow(row, pageRowIndex) {
-            var rowKey = row.cells.slice(0, state.attributeCount).map(function (c) { return c.display; }).join('||');
-            var isSelected = !row.isTotal && state.selectedRowKey !== null && state.selectedRowKey === rowKey;
-            var trClass = [
-                row.isTotal ? 'flex-table-total-row' : '',
-                !row.isTotal && state.settings.enableSelection ? 'flex-table-selectable' : '',
-                isSelected ? 'flex-table-row-selected' : ''
-            ].join(' ').replace(/\s+/g, ' ').replace(/^\s|\s$/g, '');
-
+            var trClass = row.isTotal ? 'flex-table-total-row' : '';
             var tr = addElement(body, 'tr', trClass);
-
-            if (!row.isTotal && state.settings.enableSelection) {
-                tr.addEventListener('click', function () {
-                    if (state.selectedRowKey === rowKey) {
-                        state.selectedRowKey = null;
-                    } else {
-                        state.selectedRowKey = rowKey;
-                    }
-                    var selection = [];
-                    row.cells.forEach(function (cell) {
-                        if (cell.header) {
-                            selection.push(cell.header);
-                        }
-                    });
-                    if (selection.length > 0 && state.viz && typeof state.viz.applySelection === 'function') {
-                        try {
-                            state.viz.applySelection(selection);
-                        } catch (ignoreSelection) {}
-                    }
-                    render(root, state);
-                });
-            }
 
             var rowThresholdBg = null;
             var rowThresholdColor = null;
@@ -1410,7 +1337,6 @@
             page: 0,
             pageSize: 25,
             sort: { column: null, direction: 1 },
-            selectedRowKey: null,
             columnWidths: {},
             columnFilters: {},
             hiddenColumns: {},
@@ -1437,7 +1363,6 @@
                         enableKpiIcons: 'false',
                         showSearch: 'true',
                         showExport: 'true',
-                        enableSelection: 'true',
                         enablePagination: 'true',
                         pageSize: '25',
                         showBanding: 'true',

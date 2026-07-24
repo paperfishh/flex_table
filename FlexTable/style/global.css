@@ -366,16 +366,6 @@
     }
 }
 
-/* Row Selection */
-.FlexTable .flex-table-grid tbody tr.flex-table-selectable {
-    cursor: pointer;
-}
-
-.FlexTable .flex-table-grid tbody tr.flex-table-row-selected,
-.FlexTable .flex-table-grid tbody tr.flex-table-row-selected:hover {
-    background: #e2f0fd !important;
-    outline: 1px solid #1a73b8;
-    outline-offset: -1px;
 }
 
 /* Search Term Highlighting */

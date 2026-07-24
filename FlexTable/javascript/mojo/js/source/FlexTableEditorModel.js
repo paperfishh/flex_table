@@ -347,7 +347,6 @@
                             items: [
                                 { style: $WT.CHECKBOXANDLABEL, propertyName: 'showSearch', labelText: 'Show search box' },
                                 { style: $WT.CHECKBOXANDLABEL, propertyName: 'showExport', labelText: 'Show Export CSV button' },
-                                { style: $WT.CHECKBOXANDLABEL, propertyName: 'enableSelection', labelText: 'Enable row selection as filter' },
                                 { style: $WT.CHECKBOXANDLABEL, propertyName: 'enablePagination', labelText: 'Enable pagination' },
                                 pullDown('Rows per page', 'pageSize', [
                                     { name: '10', value: '10' },
