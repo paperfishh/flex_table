@@ -11,17 +11,18 @@
 
 ## 🌟 Key Features
 
+- 🌐 **HTML Tag & Rich Content Support**: Automatically renders HTML tags in table cells (e.g., `<img>` icons/logos, `<button>` action buttons with `onclick` handlers, `<a>` links, and styled HTML badges) while exporting clean text in CSV downloads.
+- 🎴 **Top KPI Summary Cards**: Optional KPI cards section displaying metric aggregations (`Auto`, `Sum`, `Average`, `Min`, `Max`, `Count`) in flexible card layouts (`Grid`, `Scrollable Row`, `Compact`) with optional Min/Max bounds.
+- 🎨 **Curated Preset Themes**: Instant 1-click theme transformation across the entire visualization layout, including `Default Light`, `Dark Slate`, `Navy Blue`, `Emerald Green`, `Cyberpunk Neon`, `Warm Amber`, and `Minimalist Monochrome`.
+- 📊 **Advanced Metric Data Bars & Custom Range**: High-performance data bars with multiple display modes (`Solid Fill`, `Floating Capsule Bar`, `Bottom Indicator Line`), custom negative bar colors, and automatic or manual min/max range limits.
+- 🏷️ **Attribute & Metric Threshold Formatting**: Independent formatting rules per attribute value and metric. Supports continuous color gradients, 3-stage categorical cutoffs, cell background fills, text colors, and badge styles.
 - 🔍 **Real-Time Client-Side Search**: Instant filtering across all attribute and metric columns directly in the browser without re-querying the server.
-- ⚡ **Interactive Column Sorting**: Click headers to toggle ascending/descending order. Smart sorting utilizes raw numeric metric values when available.
-- 🎨 **Multi-Metric Threshold Formatting**: Independent threshold rules for every metric. Supports:
-  - **Continuous Gradients**: Smooth color transitions based on auto or custom min/max bounds.
-  - **3-Stage Categorical**: Low/Medium/High color coding based on percentiles or fixed cutoffs.
-  - Target cell backgrounds or metric text colors.
-- 📊 **Dynamic Summary Totals**: Compute `Sum`, `Average`, `Minimum`, or `Maximum` total rows calculated dynamically across all currently filtered rows. Place total rows at the top or bottom of the table.
-- 🔗 **Parent-Child Repetitive Cell Merging**: Merge consecutive identical attribute cells while respecting strict parent hierarchy integrity.
-- 📥 **Filtered CSV Export**: Export active table results—including applied filters, sorting, and summary totals—directly to a clean CSV file.
+- ⚡ **Interactive Column Sorting**: Click headers to toggle ascending/descending order with multi-type numeric and text sorting.
+- 📈 **Dynamic Summary Totals**: Compute `Sum`, `Average`, `Minimum`, or `Maximum` total rows calculated dynamically across all filtered rows at `Top` or `Bottom` position.
+- 🔗 **Parent-Child Repetitive Cell Merging**: Merge consecutive identical attribute cells while respecting parent hierarchy integrity.
+- 📥 **Filtered CSV Export**: Export active table results—including applied search filters, sorting, formatted values, and summary totals—directly to a clean CSV file.
 - 📄 **Pagination & Size Controls**: Configurable page size (5, 10, 25, 50, 100, or All) with quick first/previous/next/last and direct page jump navigation.
-- 🎛️ **Native MicroStrategy Format Panel Integration**: Configure headers, body text, colors, borders, banding, freeze panes, search toggles, and metric thresholds natively within MicroStrategy.
+- 🎛️ **Native MicroStrategy Format Panel Integration**: Configure headers, body text, preset themes, KPI cards, attribute thresholds, metric data bars, grid lines, banding, freeze panes, and search toggles natively within MicroStrategy.
 - ⚡ **Zero Third-Party Dependencies**: Written entirely in pure Vanilla JavaScript (Mojo framework) and CSS to guarantee immunity against library conflicts across MicroStrategy releases.
 
 ---
@@ -105,14 +106,20 @@ Navigate to **Format > Flex Table** in MicroStrategy to customize your visualiza
 
 | Category | Option | Description |
 | :--- | :--- | :--- |
-| **Controls** | Show Search Bar | Toggle real-time search input box |
-| | Show CSV Export | Toggle the instant CSV download button |
-| **Pagination** | Enable Pagination | Turn pagination on/off |
-| | Rows per Page | Select default page size (5, 10, 25, 50, 100, All) |
-| **Table Style** | Banding | Enable alternating row background colors |
-| | Cell Merging | Enable parent-aware repetitive cell merging |
-| | Total Row | Enable dynamic totals (`None`, `Sum`, `Average`, `Min`, `Max`) at `Top` or `Bottom` |
-| **Thresholds** | Metric Selection | Configure per-metric Continuous or 3-Stage thresholds |
+| **Theme & Styling** | Preset Theme | Select from 7 preset color themes (`Default Light`, `Dark Slate`, `Navy Blue`, `Emerald Green`, `Cyberpunk Neon`, `Warm Amber`, `Minimalist Monochrome`) |
+| | Header / Row / Banding Fill | Custom background fills for headers, rows, and alternating row bands |
+| | Header / Body / Total Font | Customize font family, size, color, and font formatting (Bold, Italic, Underline, Strikethrough) |
+| **KPI Summary Cards** | Show KPI Cards | Toggle top summary KPI cards section |
+| | Layout & Subtitles | Choose layout (`Grid`, `Scrollable`, `Compact`) and toggle Min/Max subtitle details |
+| **Controls & Pagination** | Show Search Bar | Toggle real-time search input box |
+| | Show CSV Export | Toggle instant CSV download button |
+| | Enable Pagination | Turn pagination on/off and select page size (5, 10, 25, 50, 100, All) |
+| **Table Layout** | Banding & Outline | Toggle row banding and outer table grid outline |
+| | Cell Merging | Enable parent-aware repetitive attribute cell merging |
+| | Total Row | Enable dynamic totals (`Sum`, `Average`, `Min`, `Max`) placed at `Top` or `Bottom` |
+| **Thresholds** | Attribute Thresholds | Configure custom Background Color, Text Color, or Badge style per attribute value |
+| | Metric Thresholds | Configure per-metric Continuous gradient or 3-Stage thresholds |
+| | Metric Data Bars | Enable Data Bars (`Solid Fill`, `Floating Capsule Bar`, `Bottom Indicator Line`), custom negative bar colors, and automatic/manual min/max ranges |
 
 ---
 
