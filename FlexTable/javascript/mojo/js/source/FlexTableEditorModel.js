@@ -231,6 +231,8 @@
         var continuousCustomDisabled = continuousDisabled || rangeMode !== 'custom';
         var stagedCustomDisabled = stagedDisabled || rangeMode !== 'custom';
         var dataBarDisabled = !showDataBar;
+        var dataBarRangeMode = host.getProperty(prefix + 'dataBarRangeMode') || 'auto';
+        var dataBarCustomDisabled = dataBarDisabled || dataBarRangeMode !== 'custom';
 
         return {
             name: 'Metric Threshold',
@@ -248,6 +250,12 @@
                     fill('Bar primary color', prefix + 'dataBarColor', dataBarDisabled),
                     fill('Bar gradient color', prefix + 'dataBarGradientColor', dataBarDisabled),
                     fill('Negative bar color', prefix + 'dataBarNegativeColor', dataBarDisabled),
+                    pullDown('Min / Max range', prefix + 'dataBarRangeMode', [
+                        { name: 'Automatic (from data)', value: 'auto' },
+                        { name: 'Manual (custom values)', value: 'custom' }
+                    ], dataBarDisabled),
+                    textBox('Minimum value', prefix + 'dataBarMin', dataBarCustomDisabled),
+                    textBox('Maximum value', prefix + 'dataBarMax', dataBarCustomDisabled),
 
                     { style: $WT.LABEL, labelText: 'KPI Trend Icons' },
                     pullDown('Trend icon set', prefix + 'kpiIconMode', [

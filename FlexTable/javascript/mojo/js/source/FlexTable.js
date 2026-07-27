@@ -768,9 +768,27 @@
         var barGradientColor = (metricSettings && metricSettings.dataBarGradientColor) || globalSettings.dataBarGradientColor || '#00c6ff';
         var barNegativeColor = (metricSettings && metricSettings.dataBarNegativeColor) || globalSettings.dataBarNegativeColor || '#ef4444';
 
+        var effectiveMin = stats.min;
+        var effectiveMax = stats.max;
+        if (metricSettings && metricSettings.dataBarRangeMode === 'custom') {
+            if (metricSettings.dataBarMin !== null && metricSettings.dataBarMin !== undefined) {
+                effectiveMin = metricSettings.dataBarMin;
+            }
+            if (metricSettings.dataBarMax !== null && metricSettings.dataBarMax !== undefined) {
+                effectiveMax = metricSettings.dataBarMax;
+            }
+        }
+        if (effectiveMax <= effectiveMin) {
+            effectiveMin = stats.min;
+            effectiveMax = stats.max;
+        }
+        if (effectiveMax <= effectiveMin) {
+            return;
+        }
+
         var isNegative = numValue < 0;
-        var hasNegativeRange = stats.min < 0;
-        var totalRange = Math.max(0, stats.max) - Math.min(0, stats.min);
+        var hasNegativeRange = effectiveMin < 0;
+        var totalRange = Math.max(0, effectiveMax) - Math.min(0, effectiveMin);
         if (totalRange <= 0) {
             totalRange = 1;
         }
@@ -781,7 +799,7 @@
         var primaryColor = isNegative ? barNegativeColor : barColor;
 
         if (hasNegativeRange) {
-            zeroPct = (Math.abs(Math.min(0, stats.min)) / totalRange) * 100;
+            zeroPct = (Math.abs(Math.min(0, effectiveMin)) / totalRange) * 100;
             if (isNegative) {
                 barWidthPct = (Math.abs(numValue) / totalRange) * 100;
                 barLeft = Math.max(0, zeroPct - barWidthPct);
@@ -791,7 +809,7 @@
             }
         } else {
             barLeft = 0;
-            barWidthPct = Math.max(0, Math.min(100, ((numValue - stats.min) / (stats.max - stats.min)) * 100));
+            barWidthPct = Math.max(0, Math.min(100, ((numValue - effectiveMin) / (effectiveMax - effectiveMin)) * 100));
         }
 
         barWidthPct = Math.max(0, Math.min(100, barWidthPct));
@@ -858,6 +876,9 @@
             thresholds[prefix] = {
                 showDataBar: getBoolean(viz.getProperty(prefix + 'showDataBar'), false),
                 dataBarMode: viz.getProperty(prefix + 'dataBarMode') || 'fill',
+                dataBarRangeMode: viz.getProperty(prefix + 'dataBarRangeMode') || 'auto',
+                dataBarMin: optionalNumber(viz.getProperty(prefix + 'dataBarMin')),
+                dataBarMax: optionalNumber(viz.getProperty(prefix + 'dataBarMax')),
                 dataBarColor: fillColor(barColorVal, '#2f80ed'),
                 dataBarGradientColor: fillColor(barGradColorVal, '#00c6ff'),
                 dataBarNegativeColor: fillColor(barNegColorVal, '#ef4444'),
@@ -1621,6 +1642,9 @@
                         }
                         defaultValues[prefix + 'showDataBar'] = 'false';
                         defaultValues[prefix + 'dataBarMode'] = 'fill';
+                        defaultValues[prefix + 'dataBarRangeMode'] = 'auto';
+                        defaultValues[prefix + 'dataBarMin'] = '';
+                        defaultValues[prefix + 'dataBarMax'] = '';
                         defaultValues[prefix + 'kpiIconMode'] = 'none';
                         defaultValues[prefix + 'dataBarColor'] = { fillColor: '#2f80ed', fillAlpha: '100' };
                         defaultValues[prefix + 'dataBarGradientColor'] = { fillColor: '#00c6ff', fillAlpha: '100' };
