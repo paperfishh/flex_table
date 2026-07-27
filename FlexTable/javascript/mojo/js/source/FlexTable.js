@@ -71,7 +71,17 @@
         if (value === null || typeof value === 'undefined' || value === '') {
             return fallback;
         }
-        return String(value).toLowerCase() !== 'false';
+        if (typeof value === 'boolean') {
+            return value;
+        }
+        var str = String(value).trim().toLowerCase();
+        if (str === 'true' || str === '1' || str === 'yes' || str === 'on') {
+            return true;
+        }
+        if (str === 'false' || str === '0' || str === 'no' || str === 'off') {
+            return false;
+        }
+        return fallback;
     }
 
     function getNumber(value, fallback) {
@@ -119,36 +129,82 @@
 
     function fontSettings(font, defaults) {
         var value = font || {};
-        var family = value.fontFamily || value.family || value.fontName || value.name || defaults.family;
-        var rawSize = value.fontSize !== null && typeof value.fontSize !== 'undefined' ? value.fontSize : (value.size || defaults.size);
-        var size = formatFontSize(rawSize, defaults.size);
-        var color = fillColor(value.fontColor || value.color || value.fc, defaults.color);
+        var family = value.fontFamily || value.family || value.fontName || value.name || (defaults && defaults.family ? defaults.family : 'Arial');
+        var rawSize = value.fontSize !== null && typeof value.fontSize !== 'undefined' ? value.fontSize : (value.size || (defaults && defaults.size ? defaults.size : '12px'));
+        var size = formatFontSize(rawSize, defaults && defaults.size ? defaults.size : '12px');
+        var color = fillColor(value.fontColor || value.color || value.fc, defaults && defaults.color ? defaults.color : '#1f2937');
 
         var styleCode = parseInt(value.fontStyle, 10);
         var isNumericStyle = isFinite(styleCode);
         var styleText = String(value.fontStyle || value.style || '').toLowerCase();
+        var weightText = String(value.fontWeight || value.weight || '').toLowerCase();
+        var decText = String(value.textDecoration || value.decoration || '').toLowerCase();
 
-        var isBold = getBoolean(value.isBold || value.bold, false) ||
-            styleText.indexOf('bold') !== -1 ||
-            (isNumericStyle && (styleCode & 1) !== 0) ||
-            String(value.fontWeight || value.weight || '').indexOf('bold') !== -1 ||
-            Number(value.fontWeight || value.weight) >= 600;
+        // 1. Check Bold
+        var isBold = false;
+        var hasBoldProp = (typeof value.isBold !== 'undefined' && value.isBold !== null && value.isBold !== '') ||
+                          (typeof value.bold !== 'undefined' && value.bold !== null && value.bold !== '');
+        if (hasBoldProp) {
+            var valBold = (typeof value.isBold !== 'undefined' && value.isBold !== null && value.isBold !== '') ? value.isBold : value.bold;
+            isBold = getBoolean(valBold, false);
+        } else {
+            isBold = (isNumericStyle && (styleCode & 1) !== 0) ||
+                     styleText.indexOf('bold') !== -1 ||
+                     weightText === 'bold' ||
+                     weightText === 'b' ||
+                     (isFinite(Number(weightText)) && Number(weightText) >= 600);
+        }
 
-        var isItalic = getBoolean(value.isItalic || value.italic, false) ||
-            styleText.indexOf('italic') !== -1 ||
-            (isNumericStyle && (styleCode & 2) !== 0) ||
-            String(value.fontStyle || value.style || '').indexOf('italic') !== -1;
+        // 2. Check Italic
+        var isItalic = false;
+        var hasItalicProp = (typeof value.isItalic !== 'undefined' && value.isItalic !== null && value.isItalic !== '') ||
+                            (typeof value.italic !== 'undefined' && value.italic !== null && value.italic !== '');
+        if (hasItalicProp) {
+            var valItalic = (typeof value.isItalic !== 'undefined' && value.isItalic !== null && value.isItalic !== '') ? value.isItalic : value.italic;
+            isItalic = getBoolean(valItalic, false);
+        } else {
+            isItalic = (isNumericStyle && (styleCode & 2) !== 0) ||
+                       styleText.indexOf('italic') !== -1 ||
+                       styleText.indexOf('oblique') !== -1;
+        }
 
-        var isUnderline = getBoolean(value.isUnderline || value.underline, false) ||
-            styleText.indexOf('underline') !== -1 ||
-            (isNumericStyle && (styleCode & 4) !== 0) ||
-            String(value.textDecoration || value.decoration || '').indexOf('underline') !== -1;
+        // 3. Check Underline
+        var isUnderline = false;
+        var hasUnderlineProp = (typeof value.isUnderline !== 'undefined' && value.isUnderline !== null && value.isUnderline !== '') ||
+                               (typeof value.isUnderLine !== 'undefined' && value.isUnderLine !== null && value.isUnderLine !== '') ||
+                               (typeof value.underline !== 'undefined' && value.underline !== null && value.underline !== '');
+        if (hasUnderlineProp) {
+            var valUnd = (typeof value.isUnderline !== 'undefined' && value.isUnderline !== null && value.isUnderline !== '') ? value.isUnderline :
+                         ((typeof value.isUnderLine !== 'undefined' && value.isUnderLine !== null && value.isUnderLine !== '') ? value.isUnderLine : value.underline);
+            isUnderline = getBoolean(valUnd, false);
+        } else {
+            isUnderline = (isNumericStyle && (styleCode & 4) !== 0) ||
+                         styleText.indexOf('underline') !== -1 ||
+                         decText.indexOf('underline') !== -1;
+        }
 
-        var isStrikethrough = getBoolean(value.isStrikeThrough || value.isStrikethrough || value.strikethrough || value.strikeThrough || value.lineThrough, false) ||
-            styleText.indexOf('strike') !== -1 ||
-            styleText.indexOf('line-through') !== -1 ||
-            (isNumericStyle && (styleCode & 8) !== 0) ||
-            String(value.textDecoration || value.decoration || '').indexOf('line-through') !== -1;
+        // 4. Check Strikethrough
+        var isStrikethrough = false;
+        var hasStrikeProp = (typeof value.isStrikeThrough !== 'undefined' && value.isStrikeThrough !== null && value.isStrikeThrough !== '') ||
+                            (typeof value.isStrikethrough !== 'undefined' && value.isStrikethrough !== null && value.isStrikethrough !== '') ||
+                            (typeof value.strikethrough !== 'undefined' && value.strikethrough !== null && value.strikethrough !== '') ||
+                            (typeof value.strikeThrough !== 'undefined' && value.strikeThrough !== null && value.strikeThrough !== '') ||
+                            (typeof value.isLineThrough !== 'undefined' && value.isLineThrough !== null && value.isLineThrough !== '') ||
+                            (typeof value.lineThrough !== 'undefined' && value.lineThrough !== null && value.lineThrough !== '');
+        if (hasStrikeProp) {
+            var valStrike = (typeof value.isStrikeThrough !== 'undefined' && value.isStrikeThrough !== null && value.isStrikeThrough !== '') ? value.isStrikeThrough :
+                            ((typeof value.isStrikethrough !== 'undefined' && value.isStrikethrough !== null && value.isStrikethrough !== '') ? value.isStrikethrough :
+                            ((typeof value.strikethrough !== 'undefined' && value.strikethrough !== null && value.strikethrough !== '') ? value.strikethrough :
+                            ((typeof value.strikeThrough !== 'undefined' && value.strikeThrough !== null && value.strikeThrough !== '') ? value.strikeThrough :
+                            ((typeof value.isLineThrough !== 'undefined' && value.isLineThrough !== null && value.isLineThrough !== '') ? value.isLineThrough : value.lineThrough))));
+            isStrikethrough = getBoolean(valStrike, false);
+        } else {
+            isStrikethrough = (isNumericStyle && (styleCode & 8) !== 0) ||
+                             styleText.indexOf('strike') !== -1 ||
+                             styleText.indexOf('line-through') !== -1 ||
+                             decText.indexOf('line-through') !== -1 ||
+                             decText.indexOf('strike') !== -1;
+        }
 
         var decorations = [];
         if (isUnderline) {

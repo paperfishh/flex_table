@@ -622,6 +622,7 @@
     font-weight: var(--flex-table-kpi-title-font-weight, 700);
     font-style: var(--flex-table-kpi-title-font-style, normal);
     color: var(--flex-table-kpi-title-font-color, inherit);
+    text-decoration: var(--flex-table-kpi-title-text-decoration, none);
     text-transform: uppercase;
     letter-spacing: 0.5px;
     opacity: 0.85;
