@@ -84,12 +84,10 @@
         var state = host._flexTableState;
         var columns = state && state.columns ? state.columns : [];
         var attrColumns = [];
-        var seenPrefix = {};
 
-        columns.forEach(function (column, idx) {
-            if (!column.isMetric && column.thresholdPrefix && !seenPrefix[column.thresholdPrefix]) {
-                seenPrefix[column.thresholdPrefix] = true;
-                attrColumns.push({ column: column, index: idx });
+        columns.forEach(function (column, index) {
+            if (!column.isMetric && column.thresholdPrefix) {
+                attrColumns.push({ column: column, index: index });
             }
         });
 
@@ -140,6 +138,14 @@
             });
         }
 
+        var valPulldownItems = [{ name: '-- Select Value --', value: '' }];
+        uniqueValues.forEach(function (v) {
+            valPulldownItems.push({ name: v, value: v });
+        });
+
+        var selectedValProp = prefix + 'selected_val';
+        var selectedVal = host.getProperty(selectedValProp) || (uniqueValues.length > 0 ? uniqueValues[0] : '');
+
         var groupItems = [
             pullDown('Select Attribute', 'selectedAttributeCol', attrPulldownItems),
             { style: $WT.CHECKBOXANDLABEL, propertyName: prefix + 'attr_enabled', labelText: 'Enable threshold for ' + column.name },
@@ -151,28 +157,17 @@
             ], !enabled)
         ];
 
-        var ruleIndex;
-        for (ruleIndex = 1; ruleIndex <= 10; ruleIndex += 1) {
-            var savedVal = host.getProperty(prefix + 'attr_rule' + ruleIndex + '_text') || '';
-            var dropdownItems = [{ name: '-- Select Value --', value: '' }];
-            var addedValues = {};
+        if (uniqueValues.length > 0) {
+            groupItems.push({ style: $WT.LABEL, labelText: 'Value Formatting' });
+            groupItems.push(pullDown('Select Value', selectedValProp, valPulldownItems, !enabled));
 
-            if (savedVal && !addedValues[savedVal]) {
-                addedValues[savedVal] = true;
-                dropdownItems.push({ name: savedVal, value: savedVal });
+            if (selectedVal) {
+                var safeKey = selectedVal.replace(/[^a-zA-Z0-9_]/g, '_').toLowerCase();
+                groupItems.push(fill('Background color for "' + selectedVal + '"', prefix + 'v_' + safeKey + '_bg', !enabled));
+                groupItems.push(fill('Text color for "' + selectedVal + '"', prefix + 'v_' + safeKey + '_color', !enabled));
             }
-
-            uniqueValues.forEach(function (v) {
-                if (!addedValues[v]) {
-                    addedValues[v] = true;
-                    dropdownItems.push({ name: v, value: v });
-                }
-            });
-
-            groupItems.push({ style: $WT.LABEL, labelText: 'Category Rule ' + ruleIndex });
-            groupItems.push(pullDown('Select Value', prefix + 'attr_rule' + ruleIndex + '_text', dropdownItems, !enabled));
-            groupItems.push(fill('Background color', prefix + 'attr_rule' + ruleIndex + '_bg', !enabled));
-            groupItems.push(fill('Text color', prefix + 'attr_rule' + ruleIndex + '_color', !enabled));
+        } else {
+            groupItems.push({ style: $WT.LABEL, labelText: 'No distinct values found in attribute data.' });
         }
 
         return {

@@ -596,29 +596,60 @@
         return statistics;
     }
 
-    function readAttributeThresholds(viz, columns) {
+    function readAttributeThresholds(viz, columns, rows) {
         var thresholds = {};
-        columns.forEach(function (column) {
+        var defaultBgs = ['#e0f2fe', '#dcfce7', '#fef3c7', '#fee2e2', '#f3e8ff', '#e0e7ff', '#fce7f3', '#fef9c3', '#ccfbf1', '#f3f4f6'];
+        var defaultColors = ['#0369a1', '#15803d', '#b45309', '#b91c1c', '#6b21a8', '#3730a3', '#9d174d', '#854d0e', '#115e59', '#374151'];
+
+        columns.forEach(function (column, colIndex) {
             if (column.isMetric || !column.thresholdPrefix) {
                 return;
             }
             var prefix = column.thresholdPrefix;
-            var rules = [];
+            var rulesMap = {};
+
+            // 1. Backward compatibility: check legacy attr_rule1..10
             var ruleIndex;
-            var defaultBgs = ['#e0f2fe', '#dcfce7', '#fef3c7', '#fee2e2', '#f3e8ff', '#e0e7ff', '#fce7f3', '#fef9c3', '#ccfbf1', '#f3f4f6'];
-            var defaultColors = ['#0369a1', '#15803d', '#b45309', '#b91c1c', '#6b21a8', '#3730a3', '#9d174d', '#854d0e', '#115e59', '#374151'];
             for (ruleIndex = 1; ruleIndex <= 10; ruleIndex += 1) {
                 var ruleText = String(viz.getProperty(prefix + 'attr_rule' + ruleIndex + '_text') || '').trim();
-                rules.push({
-                    text: ruleText,
-                    bg: fillColor(viz.getProperty(prefix + 'attr_rule' + ruleIndex + '_bg'), defaultBgs[(ruleIndex - 1) % defaultBgs.length]),
-                    color: fillColor(viz.getProperty(prefix + 'attr_rule' + ruleIndex + '_color'), defaultColors[(ruleIndex - 1) % defaultColors.length])
+                if (ruleText) {
+                    var ruleBg = viz.getProperty(prefix + 'attr_rule' + ruleIndex + '_bg');
+                    var ruleColor = viz.getProperty(prefix + 'attr_rule' + ruleIndex + '_color');
+                    rulesMap[ruleText.toLowerCase()] = {
+                        text: ruleText,
+                        bg: fillColor(ruleBg, defaultBgs[(ruleIndex - 1) % defaultBgs.length]),
+                        color: fillColor(ruleColor, defaultColors[(ruleIndex - 1) % defaultColors.length])
+                    };
+                }
+            }
+
+            // 2. Scan unique data values from rows for prefix + 'v_' + safeKey + '_bg' / '_color'
+            var seenVal = {};
+            if (rows) {
+                rows.forEach(function (row) {
+                    if (row.cells && row.cells[colIndex]) {
+                        var rawVal = String(row.cells[colIndex].display || row.cells[colIndex].sortValue || '').trim();
+                        if (rawVal && !seenVal[rawVal.toLowerCase()]) {
+                            seenVal[rawVal.toLowerCase()] = true;
+                            var safeKey = rawVal.replace(/[^a-zA-Z0-9_]/g, '_').toLowerCase();
+                            var vBg = viz.getProperty(prefix + 'v_' + safeKey + '_bg');
+                            var vColor = viz.getProperty(prefix + 'v_' + safeKey + '_color');
+                            if (vBg || vColor) {
+                                rulesMap[rawVal.toLowerCase()] = {
+                                    text: rawVal,
+                                    bg: fillColor(vBg, defaultBgs[0]),
+                                    color: fillColor(vColor, defaultColors[0])
+                                };
+                            }
+                        }
+                    }
                 });
             }
+
             thresholds[prefix] = {
                 enabled: getBoolean(viz.getProperty(prefix + 'attr_enabled'), false),
                 target: viz.getProperty(prefix + 'attr_target') || 'badge',
-                rules: rules
+                rulesMap: rulesMap
             };
         });
         return thresholds;
@@ -630,20 +661,8 @@
             return null;
         }
         var valLower = String(cellValue).trim().toLowerCase();
-        var matchedRule = null;
-        config.rules.some(function (rule) {
-            if (!rule.text) {
-                return false;
-            }
-            var targetLower = rule.text.toLowerCase();
-            if (valLower === targetLower) {
-                matchedRule = rule;
-                return true;
-            }
-            return false;
-        });
-
-        if (matchedRule) {
+        if (config.rulesMap && config.rulesMap[valLower]) {
+            var matchedRule = config.rulesMap[valLower];
             return {
                 target: config.target,
                 bg: matchedRule.bg,
@@ -1644,7 +1663,7 @@
                     }
                     state.settings = settings;
                     state.thresholds = readMetricThresholds(this, state.columns);
-                    state.attributeThresholds = readAttributeThresholds(this, state.columns);
+                    state.attributeThresholds = readAttributeThresholds(this, state.columns, state.rows);
                     state.metricStats = metricStatistics(state.rows, state.columns);
                     state.viz = this;
                     applyTheme(this.domNode, settings);
