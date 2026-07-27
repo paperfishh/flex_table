@@ -749,13 +749,7 @@
     overflow: visible;
 }
 
-/* KPI Trend Icons */
-.FlexTable .flex-table-kpi-icon {
-    display: inline-block;
-    margin-right: 4px;
-    font-size: 12px;
-    vertical-align: middle;
-}
+
 
 
 

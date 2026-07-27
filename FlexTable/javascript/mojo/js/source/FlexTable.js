@@ -471,7 +471,6 @@
         return {
             presetTheme: presetTheme,
             showKpiCards: getBoolean(viz.getProperty('showKpiCards'), false),
-            enableKpiIcons: getBoolean(viz.getProperty('enableKpiIcons'), false),
             kpiAggregation: viz.getProperty('kpiAggregation') || 'auto',
             kpiLayout: viz.getProperty('kpiLayout') || 'grid',
             showKpiMinMax: getBoolean(viz.getProperty('showKpiMinMax'), true),
@@ -886,53 +885,6 @@
 
 
 
-    function renderKpiIcon(td, metricConfig, numValue, stats) {
-        if (!metricConfig || !metricConfig.kpiIconMode || metricConfig.kpiIconMode === 'none' || !stats || !isFinite(numValue)) {
-            return;
-        }
-        var mode = metricConfig.kpiIconMode;
-        var range = stats.max > stats.min ? stats.max - stats.min : 1;
-        var ratio = (numValue - stats.min) / range;
-        var symbol = '';
-
-        if (mode === 'arrows') {
-            if (ratio >= 0.66) {
-                symbol = '🔼';
-            } else if (ratio >= 0.33) {
-                symbol = '◀▶';
-            } else {
-                symbol = '🔽';
-            }
-        } else if (mode === 'traffic') {
-            if (ratio >= 0.66) {
-                symbol = '🟢';
-            } else if (ratio >= 0.33) {
-                symbol = '🟡';
-            } else {
-                symbol = '🔴';
-            }
-        } else if (mode === 'status') {
-            if (ratio >= 0.66) {
-                symbol = '✅';
-            } else if (ratio >= 0.33) {
-                symbol = '⚠️';
-            } else {
-                symbol = '❌';
-            }
-        } else if (mode === 'stars') {
-            if (ratio >= 0.66) {
-                symbol = '⭐';
-            }
-        }
-
-        if (symbol) {
-            var span = document.createElement('span');
-            span.className = 'flex-table-kpi-icon';
-            span.textContent = symbol;
-            td.insertBefore(span, td.firstChild);
-        }
-    }
-
     function renderKpiCards(parent, state) {
         if (!state.settings.showKpiCards) {
             return;
@@ -1094,7 +1046,6 @@
                 dataBarColor: fillColor(barColorVal, '#2f80ed'),
                 dataBarGradientColor: fillColor(barGradColorVal, '#00c6ff'),
                 dataBarNegativeColor: fillColor(barNegColorVal, '#ef4444'),
-                kpiIconMode: viz.getProperty(prefix + 'kpiIconMode') || 'none',
                 enabled: getBoolean(viz.getProperty(prefix + 'enabled'), false),
                 mode: viz.getProperty(prefix + 'mode') || 'continuous',
                 target: viz.getProperty(prefix + 'target') || 'background',
@@ -1546,10 +1497,6 @@
                     }
 
                     var metricConfig = state.thresholds ? state.thresholds[column.thresholdPrefix] : null;
-                    if (state.settings.enableKpiIcons && metricConfig) {
-                        var statsKpi = state.metricStats[column.thresholdPrefix];
-                        renderKpiIcon(td, metricConfig, Number(cell.sortValue), statsKpi);
-                    }
 
                     var metricDataBarEnabled = metricConfig ? metricConfig.showDataBar : false;
                     if (metricDataBarEnabled && !thresholdStyle) {
@@ -1789,7 +1736,6 @@
                     var defaultValues = {
                         presetTheme: 'default',
                         showKpiCards: 'false',
-                        enableKpiIcons: 'false',
                         kpiAggregation: 'auto',
                         kpiLayout: 'grid',
                         showKpiMinMax: 'true',
@@ -1857,7 +1803,6 @@
                         defaultValues[prefix + 'dataBarRangeMode'] = 'auto';
                         defaultValues[prefix + 'dataBarMin'] = '';
                         defaultValues[prefix + 'dataBarMax'] = '';
-                        defaultValues[prefix + 'kpiIconMode'] = 'none';
                         defaultValues[prefix + 'dataBarColor'] = { fillColor: '#2f80ed', fillAlpha: '100' };
                         defaultValues[prefix + 'dataBarGradientColor'] = { fillColor: '#00c6ff', fillAlpha: '100' };
                         defaultValues[prefix + 'dataBarNegativeColor'] = { fillColor: '#ef4444', fillAlpha: '100' };

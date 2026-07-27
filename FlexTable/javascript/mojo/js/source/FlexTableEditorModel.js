@@ -257,15 +257,6 @@
                     textBox('Minimum value', prefix + 'dataBarMin', dataBarCustomDisabled),
                     textBox('Maximum value', prefix + 'dataBarMax', dataBarCustomDisabled),
 
-                    { style: $WT.LABEL, labelText: 'KPI Trend Icons' },
-                    pullDown('Trend icon set', prefix + 'kpiIconMode', [
-                        { name: 'None', value: 'none' },
-                        { name: 'Arrows (🔼 🔽 ◀▶)', value: 'arrows' },
-                        { name: 'Traffic Lights (🔴 🟡 🟢)', value: 'traffic' },
-                        { name: 'Status Symbols (✅ ⚠️ ❌)', value: 'status' },
-                        { name: 'Stars (⭐)', value: 'stars' }
-                    ]),
-
                     { style: $WT.LABEL, labelText: 'Numeric Threshold' },
                     { style: $WT.CHECKBOXANDLABEL, propertyName: prefix + 'enabled', labelText: 'Enable threshold for ' + column.name },
                     pullDown('Mode', prefix + 'mode', [
@@ -366,15 +357,6 @@
                                 fill('Card border color', 'kpiCardBorderFill', kpiDisabled),
                                 font('Title font', 'kpiTitleFont', kpiDisabled),
                                 font('Value font', 'kpiValueFont', kpiDisabled)
-                            ]
-                        }]
-                    },
-                    {
-                        name: 'Advanced Features & Display',
-                        value: [{
-                            style: $WT.EDITORGROUP,
-                            items: [
-                                { style: $WT.CHECKBOXANDLABEL, propertyName: 'enableKpiIcons', labelText: 'Enable KPI trend icons' }
                             ]
                         }]
                     },
