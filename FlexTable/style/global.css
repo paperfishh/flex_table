@@ -83,7 +83,7 @@
 .FlexTable .flex-table-footer {
     justify-content: space-between;
     border-top: 1px solid var(--flex-table-grid-color, #d9e1ea);
-    color: #52606d;
+    color: var(--flex-table-value-font-color, #52606d);
 }
 
 .FlexTable .flex-table-search {
@@ -91,15 +91,16 @@
     min-width: 140px;
     height: 28px;
     padding: 4px 8px;
-    border: 1px solid #aebdcb;
+    border: 1px solid var(--flex-table-grid-color, #aebdcb);
     border-radius: 3px;
-    color: inherit;
-    background: #ffffff;
+    color: var(--flex-table-value-font-color, inherit);
+    background: var(--flex-table-header-color, #ffffff);
 }
 
 .FlexTable .flex-table-count {
-    color: #52606d;
+    color: var(--flex-table-value-font-color, #52606d);
     white-space: nowrap;
+    opacity: 0.85;
 }
 
 .FlexTable .flex-table-actions,
@@ -118,10 +119,10 @@
 .FlexTable .flex-table-page,
 .FlexTable .flex-table-page-input {
     height: 28px;
-    border: 1px solid #aebdcb;
+    border: 1px solid var(--flex-table-grid-color, #aebdcb);
     border-radius: 3px;
-    color: #273444;
-    background: #ffffff;
+    color: var(--flex-table-value-font-color, #273444);
+    background: var(--flex-table-header-color, #ffffff);
     cursor: pointer;
 }
 
@@ -148,8 +149,9 @@
 
 .FlexTable .flex-table-export:hover,
 .FlexTable .flex-table-page:hover:not(:disabled) {
-    border-color: #1a73b8;
-    color: #0f5f9f;
+    border-color: var(--flex-table-header-font-color, #1a73b8);
+    background: var(--flex-table-band-color, #e8f1f8);
+    color: var(--flex-table-header-font-color, #0f5f9f);
 }
 
 .FlexTable .flex-table-page:disabled {

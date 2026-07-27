@@ -306,22 +306,177 @@
         };
     }
 
+    var THEME_PALETTES = {
+        default: {
+            bg: '#ffffff',
+            headerBg: '#f5f8fa',
+            headerFg: '#324a5f',
+            rowBg: '#ffffff',
+            bandBg: '#fafbfd',
+            rowFg: '#1f2937',
+            gridColor: '#d9e1ea',
+            totalBg: '#eef3f7',
+            totalFg: '#1f2937',
+            kpiBg: '#f8fafc',
+            kpiBorder: '#d9e1ea',
+            kpiTitleFg: '#52606d',
+            kpiValueFg: '#1f2937'
+        },
+        dark: {
+            bg: '#0f172a',
+            headerBg: '#1e293b',
+            headerFg: '#f1f5f9',
+            rowBg: '#0f172a',
+            bandBg: '#182234',
+            rowFg: '#e2e8f0',
+            gridColor: '#334155',
+            totalBg: '#1e293b',
+            totalFg: '#f8fafc',
+            kpiBg: '#1e293b',
+            kpiBorder: '#334155',
+            kpiTitleFg: '#94a3b8',
+            kpiValueFg: '#f8fafc'
+        },
+        navy: {
+            bg: '#0a192f',
+            headerBg: '#112240',
+            headerFg: '#64ffda',
+            rowBg: '#0a192f',
+            bandBg: '#112240',
+            rowFg: '#ccd6f6',
+            gridColor: '#233554',
+            totalBg: '#172a45',
+            totalFg: '#64ffda',
+            kpiBg: '#112240',
+            kpiBorder: '#233554',
+            kpiTitleFg: '#8892b0',
+            kpiValueFg: '#64ffda'
+        },
+        emerald: {
+            bg: '#f0fdf4',
+            headerBg: '#dcfce7',
+            headerFg: '#14532d',
+            rowBg: '#ffffff',
+            bandBg: '#f0fdf4',
+            rowFg: '#166534',
+            gridColor: '#bbf7d0',
+            totalBg: '#dcfce7',
+            totalFg: '#14532d',
+            kpiBg: '#ffffff',
+            kpiBorder: '#bbf7d0',
+            kpiTitleFg: '#15803d',
+            kpiValueFg: '#14532d'
+        },
+        cyberpunk: {
+            bg: '#090d16',
+            headerBg: '#131b2e',
+            headerFg: '#00f0ff',
+            rowBg: '#090d16',
+            bandBg: '#0e1626',
+            rowFg: '#e0f7fa',
+            gridColor: '#263552',
+            totalBg: '#1a2640',
+            totalFg: '#ff007f',
+            kpiBg: '#131b2e',
+            kpiBorder: '#00f0ff',
+            kpiTitleFg: '#ff007f',
+            kpiValueFg: '#00f0ff'
+        },
+        amber: {
+            bg: '#fffbeb',
+            headerBg: '#fef3c7',
+            headerFg: '#78350f',
+            rowBg: '#ffffff',
+            bandBg: '#fffbeb',
+            rowFg: '#92400e',
+            gridColor: '#fde68a',
+            totalBg: '#fef3c7',
+            totalFg: '#78350f',
+            kpiBg: '#ffffff',
+            kpiBorder: '#fde68a',
+            kpiTitleFg: '#b45309',
+            kpiValueFg: '#78350f'
+        },
+        minimalist: {
+            bg: '#fafafa',
+            headerBg: '#f4f4f5',
+            headerFg: '#18181b',
+            rowBg: '#ffffff',
+            bandBg: '#fafafa',
+            rowFg: '#27272a',
+            gridColor: '#e4e4e7',
+            totalBg: '#f4f4f5',
+            totalFg: '#18181b',
+            kpiBg: '#ffffff',
+            kpiBorder: '#e4e4e7',
+            kpiTitleFg: '#71717a',
+            kpiValueFg: '#18181b'
+        }
+    };
+
+    function resolveThemeColor(propVal, defaultLightHex, themeHex, isDefaultTheme) {
+        var parsed = fillColor(propVal, null);
+        if (!parsed) {
+            return themeHex;
+        }
+        if (!isDefaultTheme && String(parsed).toLowerCase() === defaultLightHex.toLowerCase()) {
+            return themeHex;
+        }
+        return parsed;
+    }
+
     function readSettings(viz) {
-        var headerFont = fontSettings(viz.getProperty('headerFont'), { family: 'Arial', size: '12px', color: '#324a5f' });
-        var valueFont = fontSettings(viz.getProperty('valueFont'), { family: 'Arial', size: '12px', color: '#1f2937' });
-        var totalFont = fontSettings(viz.getProperty('totalFont'), { family: 'Arial', size: '12px', color: '#1f2937' });
-        var kpiTitleFont = fontSettings(viz.getProperty('kpiTitleFont'), { family: 'Arial', size: '10px', color: '#52606d' });
-        var kpiValueFont = fontSettings(viz.getProperty('kpiValueFont'), { family: 'Arial', size: '16px', color: '#1f2937' });
-        var gridLine = lineSettings(viz.getProperty('gridLine'), fillColor(viz.getProperty('outlineFill'), '#d9e1ea'));
+        var presetTheme = viz.getProperty('presetTheme') || 'default';
+        var theme = THEME_PALETTES[presetTheme] || THEME_PALETTES['default'];
+        var isDefaultTheme = presetTheme === 'default';
+
+        var headerFillProp = viz.getProperty('headerFill');
+        var rowFillProp = viz.getProperty('rowFill');
+        var bandFillProp = viz.getProperty('bandFill');
+        var tableFillProp = viz.getProperty('tableFill');
+        var totalFillProp = viz.getProperty('totalFill');
+        var outlineFillProp = viz.getProperty('outlineFill');
+        var kpiCardFillProp = viz.getProperty('kpiCardFill');
+        var kpiCardBorderFillProp = viz.getProperty('kpiCardBorderFill');
+
+        var headerFontProp = viz.getProperty('headerFont');
+        var valueFontProp = viz.getProperty('valueFont');
+        var totalFontProp = viz.getProperty('totalFont');
+        var kpiTitleFontProp = viz.getProperty('kpiTitleFont');
+        var kpiValueFontProp = viz.getProperty('kpiValueFont');
+
+        var headerColor = resolveThemeColor(headerFillProp, '#f5f8fa', theme.headerBg, isDefaultTheme);
+        var rowColor = resolveThemeColor(rowFillProp, '#ffffff', theme.rowBg, isDefaultTheme);
+        var bandColor = resolveThemeColor(bandFillProp, '#fafbfd', theme.bandBg, isDefaultTheme);
+        var tableColor = resolveThemeColor(tableFillProp, '#ffffff', theme.bg, isDefaultTheme);
+        var totalColor = resolveThemeColor(totalFillProp, '#eef3f7', theme.totalBg, isDefaultTheme);
+        var kpiCardBg = resolveThemeColor(kpiCardFillProp, '#f8fafc', theme.kpiBg, isDefaultTheme);
+        var kpiCardBorderColor = resolveThemeColor(kpiCardBorderFillProp, '#d9e1ea', theme.kpiBorder, isDefaultTheme);
+
+        var gridColorVal = resolveThemeColor(outlineFillProp, '#d9e1ea', theme.gridColor, isDefaultTheme);
+        var gridLine = lineSettings(viz.getProperty('gridLine'), gridColorVal);
+
+        var headerFgColor = resolveThemeColor(headerFontProp ? (headerFontProp.fontColor || headerFontProp.color || headerFontProp.fc) : null, '#324a5f', theme.headerFg, isDefaultTheme);
+        var valueFgColor = resolveThemeColor(valueFontProp ? (valueFontProp.fontColor || valueFontProp.color || valueFontProp.fc) : null, '#1f2937', theme.rowFg, isDefaultTheme);
+        var totalFgColor = resolveThemeColor(totalFontProp ? (totalFontProp.fontColor || totalFontProp.color || totalFontProp.fc) : null, '#1f2937', theme.totalFg, isDefaultTheme);
+        var kpiTitleFgColor = resolveThemeColor(kpiTitleFontProp ? (kpiTitleFontProp.fontColor || kpiTitleFontProp.color || kpiTitleFontProp.fc) : null, '#52606d', theme.kpiTitleFg, isDefaultTheme);
+        var kpiValueFgColor = resolveThemeColor(kpiValueFontProp ? (kpiValueFontProp.fontColor || kpiValueFontProp.color || kpiValueFontProp.fc) : null, '#1f2937', theme.kpiValueFg, isDefaultTheme);
+
+        var headerFont = fontSettings(headerFontProp, { family: 'Arial', size: '12px', color: headerFgColor });
+        var valueFont = fontSettings(valueFontProp, { family: 'Arial', size: '12px', color: valueFgColor });
+        var totalFont = fontSettings(totalFontProp, { family: 'Arial', size: '12px', color: totalFgColor });
+        var kpiTitleFont = fontSettings(kpiTitleFontProp, { family: 'Arial', size: '10px', color: kpiTitleFgColor });
+        var kpiValueFont = fontSettings(kpiValueFontProp, { family: 'Arial', size: '16px', color: kpiValueFgColor });
+
         return {
-            presetTheme: viz.getProperty('presetTheme') || 'default',
+            presetTheme: presetTheme,
             showKpiCards: getBoolean(viz.getProperty('showKpiCards'), false),
             enableKpiIcons: getBoolean(viz.getProperty('enableKpiIcons'), false),
             kpiAggregation: viz.getProperty('kpiAggregation') || 'auto',
             kpiLayout: viz.getProperty('kpiLayout') || 'grid',
             showKpiMinMax: getBoolean(viz.getProperty('showKpiMinMax'), true),
-            kpiCardBg: fillColor(viz.getProperty('kpiCardFill'), '#f8fafc'),
-            kpiCardBorderColor: fillColor(viz.getProperty('kpiCardBorderFill'), '#d9e1ea'),
+            kpiCardBg: kpiCardBg,
+            kpiCardBorderColor: kpiCardBorderColor,
             showSearch: getBoolean(viz.getProperty('showSearch'), true),
             showExport: getBoolean(viz.getProperty('showExport'), true),
             enablePagination: getBoolean(viz.getProperty('enablePagination'), true),
@@ -351,11 +506,11 @@
             fixedColumnWidth: getNumber(viz.getProperty('fixedColumnWidth'), 140),
             rowSizing: viz.getProperty('rowSizing') || 'fitContent',
             fixedRowHeight: getNumber(viz.getProperty('fixedRowHeight'), 36),
-            headerColor: fillColor(viz.getProperty('headerFill'), '#f5f8fa'),
-            rowColor: fillColor(viz.getProperty('rowFill'), '#ffffff'),
-            bandColor: fillColor(viz.getProperty('bandFill'), '#fafbfd'),
-            tableColor: fillColor(viz.getProperty('tableFill'), '#ffffff'),
-            totalColor: fillColor(viz.getProperty('totalFill'), '#eef3f7'),
+            headerColor: headerColor,
+            rowColor: rowColor,
+            bandColor: bandColor,
+            tableColor: tableColor,
+            totalColor: totalColor,
             headerFont: headerFont,
             valueFont: valueFont,
             totalFont: totalFont,
@@ -416,6 +571,7 @@
         setStyleVariable(root, '--flex-table-kpi-title-font-color', settings.kpiTitleFont.color);
         setStyleVariable(root, '--flex-table-kpi-title-font-weight', settings.kpiTitleFont.weight);
         setStyleVariable(root, '--flex-table-kpi-title-font-style', settings.kpiTitleFont.style);
+        setStyleVariable(root, '--flex-table-kpi-title-text-decoration', settings.kpiTitleFont.decoration);
         setStyleVariable(root, '--flex-table-kpi-value-font-family', settings.kpiValueFont.family);
         setStyleVariable(root, '--flex-table-kpi-value-font-size', settings.kpiValueFont.size);
         setStyleVariable(root, '--flex-table-kpi-value-font-color', settings.kpiValueFont.color);
