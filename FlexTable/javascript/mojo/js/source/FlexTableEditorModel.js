@@ -149,7 +149,7 @@
         var groupItems = [
             pullDown('Select Attribute', 'selectedAttributeCol', attrPulldownItems),
             { style: $WT.CHECKBOXANDLABEL, propertyName: prefix + 'attr_enabled', labelText: 'Enable threshold for ' + column.name },
-            pullDown('Apply style to', prefix + 'attr_target', [
+            pullDown('Threshold Style', prefix + 'attr_target', [
                 { name: 'Status Badge / Tag', value: 'badge' },
                 { name: 'Cell background', value: 'cell' },
                 { name: 'Text color', value: 'text' },
@@ -163,8 +163,8 @@
 
             if (selectedVal) {
                 var safeKey = selectedVal.replace(/[^a-zA-Z0-9_]/g, '_').toLowerCase();
-                groupItems.push(fill('Background color for "' + selectedVal + '"', prefix + 'v_' + safeKey + '_bg', !enabled));
-                groupItems.push(fill('Text color for "' + selectedVal + '"', prefix + 'v_' + safeKey + '_color', !enabled));
+                groupItems.push(fill('Background Color', prefix + 'v_' + safeKey + '_bg', !enabled));
+                groupItems.push(fill('Text Color', prefix + 'v_' + safeKey + '_color', !enabled));
             }
         } else {
             groupItems.push({ style: $WT.LABEL, labelText: 'No distinct values found in attribute data.' });
