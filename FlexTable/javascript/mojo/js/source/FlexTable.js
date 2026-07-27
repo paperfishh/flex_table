@@ -44,8 +44,26 @@
         return element;
     }
 
+    function isHtmlString(value) {
+        if (value === null || typeof value === 'undefined') {
+            return false;
+        }
+        var str = String(value).trim();
+        return /<[a-z][\s\S]*>/i.test(str);
+    }
+
+    function stripHtml(html) {
+        if (!html) return '';
+        var tmp = document.createElement('div');
+        tmp.innerHTML = html;
+        return tmp.textContent || tmp.innerText || '';
+    }
+
     function escapeCsv(value) {
         var text = value === null || typeof value === 'undefined' ? '' : String(value);
+        if (isHtmlString(text)) {
+            text = stripHtml(text);
+        }
         return /[",\r\n]/.test(text) ? '"' + text.replace(/"/g, '""') + '"' : text;
     }
 
@@ -1147,6 +1165,20 @@
         return safeText.replace(regex, '<mark class="flex-table-highlight">$1</mark>');
     }
 
+    function renderCellContent(container, content, query) {
+        if (content === null || typeof content === 'undefined') {
+            return;
+        }
+        var strContent = String(content);
+        if (isHtmlString(strContent)) {
+            container.innerHTML = strContent;
+        } else if (query) {
+            container.innerHTML = highlightMatch(strContent, query);
+        } else {
+            container.appendChild(document.createTextNode(strContent));
+        }
+    }
+
     function createButton(parent, className, label, title, onClick) {
         var button = addElement(parent, 'button', className, label);
         button.type = 'button';
@@ -1444,44 +1476,25 @@
                     var attrMatch = getAttributeThresholdMatch(state, column, cell.display);
                     if (attrMatch) {
                         if (attrMatch.target === 'badge') {
-                            var badge = addElement(td, 'span', 'flex-table-badge', cell.display);
+                            var badge = addElement(td, 'span', 'flex-table-badge');
                             badge.style.backgroundColor = attrMatch.bg;
                             badge.style.color = attrMatch.color;
+                            renderCellContent(badge, cell.display, state.query);
                         } else if (attrMatch.target === 'cell') {
                             td.style.backgroundColor = attrMatch.bg;
                             td.style.color = attrMatch.color;
-                            if (state.query) {
-                                td.innerHTML += highlightMatch(cell.display, state.query);
-                            } else {
-                                td.appendChild(document.createTextNode(cell.display));
-                            }
+                            renderCellContent(td, cell.display, state.query);
                         } else if (attrMatch.target === 'text') {
                             td.style.color = attrMatch.color;
-                            if (state.query) {
-                                td.innerHTML += highlightMatch(cell.display, state.query);
-                            } else {
-                                td.appendChild(document.createTextNode(cell.display));
-                            }
+                            renderCellContent(td, cell.display, state.query);
                         } else {
-                            if (state.query) {
-                                td.innerHTML += highlightMatch(cell.display, state.query);
-                            } else {
-                                td.appendChild(document.createTextNode(cell.display));
-                            }
+                            renderCellContent(td, cell.display, state.query);
                         }
                     } else {
-                        if (state.query) {
-                            td.innerHTML += highlightMatch(cell.display, state.query);
-                        } else {
-                            td.appendChild(document.createTextNode(cell.display));
-                        }
+                        renderCellContent(td, cell.display, state.query);
                     }
                 } else {
-                    if (state.query && !row.isTotal) {
-                        td.innerHTML = highlightMatch(cell.display, state.query);
-                    } else {
-                        td.textContent = cell.display;
-                    }
+                    renderCellContent(td, cell.display, row.isTotal ? '' : state.query);
                 }
 
                 if (!row.isTotal && column.isMetric) {

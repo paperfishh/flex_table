@@ -247,6 +247,22 @@
     vertical-align: var(--flex-table-value-v-align, middle);
 }
 
+.FlexTable .flex-table-grid td img {
+    max-height: 100%;
+    max-width: 100%;
+    vertical-align: middle;
+    object-fit: contain;
+}
+
+.FlexTable .flex-table-grid td button {
+    vertical-align: middle;
+}
+
+.FlexTable .flex-table-grid td a {
+    color: inherit;
+    text-decoration: underline;
+}
+
 .FlexTable .flex-table-grid td.flex-table-attribute {
     text-align: var(--flex-table-attribute-h-align, left);
 }
