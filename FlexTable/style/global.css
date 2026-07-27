@@ -492,6 +492,14 @@
     z-index: 1;
 }
 
+.FlexTable .flex-table-bar-bottom-fill {
+    position: absolute;
+    top: 0;
+    height: 100%;
+    border-radius: 2px;
+    transition: width 0.3s ease, left 0.3s ease;
+}
+
 /* Theme Presets */
 .FlexTable.flex-table-theme-dark {
     --flex-table-background-color: #0f172a;

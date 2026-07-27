@@ -762,11 +762,11 @@
         if (!stats || !isFinite(numValue) || stats.max <= stats.min) {
             return;
         }
-        var mode = globalSettings.dataBarMode || 'fill';
+        var mode = (metricSettings && metricSettings.dataBarMode) || globalSettings.dataBarMode || 'fill';
         var useGradient = globalSettings.dataBarUseGradient;
         var barColor = (metricSettings && metricSettings.dataBarColor) || globalSettings.dataBarColor || '#2f80ed';
         var barGradientColor = (metricSettings && metricSettings.dataBarGradientColor) || globalSettings.dataBarGradientColor || '#00c6ff';
-        var barNegativeColor = globalSettings.dataBarNegativeColor || '#ef4444';
+        var barNegativeColor = (metricSettings && metricSettings.dataBarNegativeColor) || globalSettings.dataBarNegativeColor || '#ef4444';
 
         var isNegative = numValue < 0;
         var hasNegativeRange = stats.min < 0;
@@ -858,9 +858,9 @@
             thresholds[prefix] = {
                 showDataBar: getBoolean(viz.getProperty(prefix + 'showDataBar'), false),
                 dataBarMode: viz.getProperty(prefix + 'dataBarMode') || 'fill',
-                dataBarColor: barColorVal ? fillColor(barColorVal) : '#2f80ed',
-                dataBarGradientColor: barGradColorVal ? fillColor(barGradColorVal) : '#00c6ff',
-                dataBarNegativeColor: barNegColorVal ? fillColor(barNegColorVal) : '#ef4444',
+                dataBarColor: fillColor(barColorVal, '#2f80ed'),
+                dataBarGradientColor: fillColor(barGradColorVal, '#00c6ff'),
+                dataBarNegativeColor: fillColor(barNegColorVal, '#ef4444'),
                 kpiIconMode: viz.getProperty(prefix + 'kpiIconMode') || 'none',
                 enabled: getBoolean(viz.getProperty(prefix + 'enabled'), false),
                 mode: viz.getProperty(prefix + 'mode') || 'continuous',
@@ -1619,10 +1619,12 @@
                             }
                             return;
                         }
-                        defaultValues[prefix + 'showDataBar'] = 'true';
+                        defaultValues[prefix + 'showDataBar'] = 'false';
+                        defaultValues[prefix + 'dataBarMode'] = 'fill';
                         defaultValues[prefix + 'kpiIconMode'] = 'none';
                         defaultValues[prefix + 'dataBarColor'] = { fillColor: '#2f80ed', fillAlpha: '100' };
                         defaultValues[prefix + 'dataBarGradientColor'] = { fillColor: '#00c6ff', fillAlpha: '100' };
+                        defaultValues[prefix + 'dataBarNegativeColor'] = { fillColor: '#ef4444', fillAlpha: '100' };
                         defaultValues[prefix + 'enabled'] = 'false';
                         defaultValues[prefix + 'mode'] = 'continuous';
                         defaultValues[prefix + 'target'] = 'background';
