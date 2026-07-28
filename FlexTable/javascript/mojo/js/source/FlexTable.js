@@ -443,6 +443,42 @@
         return parsed;
     }
 
+    function resolveThemeTextColor(fontProp, defaultLightHex, themeFgHex, bgHex, isDefaultTheme) {
+        var rawColor = fontProp ? (fontProp.fontColor || fontProp.color || fontProp.fc) : null;
+        var parsed = fillColor(rawColor, null);
+        var bgIsDark = contrastColor(bgHex) === '#ffffff';
+
+        var commonLightModeDarkTexts = [
+            '#324a5f', '#1f2937', '#52606d', '#000000', '#000', 'black',
+            '#111827', '#18181b', '#27272a', '#333333', '#4b5563', '#374151', '#273444'
+        ];
+
+        if (!parsed) {
+            return bgIsDark ? themeFgHex : (isDefaultTheme ? defaultLightHex : themeFgHex);
+        }
+
+        var parsedLower = String(parsed).toLowerCase();
+        var defaultLightLower = String(defaultLightHex).toLowerCase();
+        var isDefaultDarkText = (parsedLower === defaultLightLower) ||
+                                (commonLightModeDarkTexts.indexOf(parsedLower) !== -1) ||
+                                (contrastColor(parsed) === '#ffffff');
+
+        if (!isDefaultTheme) {
+            if (bgIsDark && isDefaultDarkText) {
+                return themeFgHex;
+            }
+            if (isDefaultDarkText) {
+                return themeFgHex;
+            }
+        } else {
+            if (bgIsDark && isDefaultDarkText) {
+                return '#f8fafc';
+            }
+        }
+
+        return parsed;
+    }
+
     function readSettings(viz) {
         var presetTheme = viz.getProperty('presetTheme') || 'default';
         var theme = THEME_PALETTES[presetTheme] || THEME_PALETTES['default'];
@@ -474,11 +510,11 @@
         var gridColorVal = resolveThemeColor(outlineFillProp, '#d9e1ea', theme.gridColor, isDefaultTheme);
         var gridLine = lineSettings(viz.getProperty('gridLine'), gridColorVal);
 
-        var headerFgColor = resolveThemeColor(headerFontProp ? (headerFontProp.fontColor || headerFontProp.color || headerFontProp.fc) : null, '#324a5f', theme.headerFg, isDefaultTheme);
-        var valueFgColor = resolveThemeColor(valueFontProp ? (valueFontProp.fontColor || valueFontProp.color || valueFontProp.fc) : null, '#1f2937', theme.rowFg, isDefaultTheme);
-        var totalFgColor = resolveThemeColor(totalFontProp ? (totalFontProp.fontColor || totalFontProp.color || totalFontProp.fc) : null, '#1f2937', theme.totalFg, isDefaultTheme);
-        var kpiTitleFgColor = resolveThemeColor(kpiTitleFontProp ? (kpiTitleFontProp.fontColor || kpiTitleFontProp.color || kpiTitleFontProp.fc) : null, '#52606d', theme.kpiTitleFg, isDefaultTheme);
-        var kpiValueFgColor = resolveThemeColor(kpiValueFontProp ? (kpiValueFontProp.fontColor || kpiValueFontProp.color || kpiValueFontProp.fc) : null, '#1f2937', theme.kpiValueFg, isDefaultTheme);
+        var headerFgColor = resolveThemeTextColor(headerFontProp, '#324a5f', theme.headerFg, headerColor, isDefaultTheme);
+        var valueFgColor = resolveThemeTextColor(valueFontProp, '#1f2937', theme.rowFg, rowColor, isDefaultTheme);
+        var totalFgColor = resolveThemeTextColor(totalFontProp, '#1f2937', theme.totalFg, totalColor, isDefaultTheme);
+        var kpiTitleFgColor = resolveThemeTextColor(kpiTitleFontProp, '#52606d', theme.kpiTitleFg, kpiCardBg, isDefaultTheme);
+        var kpiValueFgColor = resolveThemeTextColor(kpiValueFontProp, '#1f2937', theme.kpiValueFg, kpiCardBg, isDefaultTheme);
 
         var headerFont = fontSettings(headerFontProp, { family: 'Arial', size: '12px', color: headerFgColor });
         var valueFont = fontSettings(valueFontProp, { family: 'Arial', size: '12px', color: valueFgColor });
