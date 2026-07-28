@@ -56,7 +56,16 @@
     function font(label, propertyName, disabled) {
         var row = labelledControl(label, {
             style: $WT.CHARACTERGROUP,
-            propertyName: propertyName
+            propertyName: propertyName,
+            showEffects: false,
+            showStyle: false,
+            showFormat: false,
+            showBold: false,
+            showItalic: false,
+            showUnderline: false,
+            showStrikethrough: false,
+            effects: false,
+            styleButtons: false
         }, 25);
         row.disabled = !!disabled;
         return row;
