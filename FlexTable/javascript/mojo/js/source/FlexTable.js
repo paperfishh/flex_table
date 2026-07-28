@@ -151,133 +151,43 @@
         var rawSize = value.fontSize !== null && typeof value.fontSize !== 'undefined' ? value.fontSize : (value.size || (defaults && defaults.size ? defaults.size : '12px'));
         var size = formatFontSize(rawSize, defaults && defaults.size ? defaults.size : '12px');
         var color = (defaults && defaults.color) ? defaults.color : fillColor(value.fontColor || value.color || value.fc, '#1f2937');
-
-        var fontStyleRaw = value.fontStyle !== null && typeof value.fontStyle !== 'undefined' ? value.fontStyle : (value.style || '');
-        var styleCode = parseInt(fontStyleRaw, 10);
-        var isNumericStyle = isFinite(styleCode) && styleCode >= 0;
-        var styleText = String(fontStyleRaw).toLowerCase();
-        var weightText = String(value.fontWeight || value.weight || '').toLowerCase();
-        var decText = String(value.textDecoration || value.decoration || '').toLowerCase();
-
-        var isTrueVal = function (v) {
-            if (typeof v === 'boolean') return v;
-            if (typeof v === 'number') return v > 0;
-            if (typeof v === 'string') {
-                var s = v.toLowerCase().trim();
-                return s === 'true' || s === '1' || s === 'yes';
-            }
-            return false;
-        };
-
-        var propBold = isTrueVal(value.isBold) || isTrueVal(value.bold) || isTrueVal(value.b);
-        var propItalic = isTrueVal(value.isItalic) || isTrueVal(value.italic) || isTrueVal(value.i);
-        var propUnderline = isTrueVal(value.isUnderline) || isTrueVal(value.isUnderLine) || isTrueVal(value.underline) || isTrueVal(value.u);
-        var propStrike = isTrueVal(value.isStrikeThrough) || isTrueVal(value.isStrikethrough) || isTrueVal(value.strikethrough) || isTrueVal(value.strikeThrough) || isTrueVal(value.isLineThrough) || isTrueVal(value.lineThrough) || isTrueVal(value.s);
-
-        // 1. Check Bold
-        var isBold = propBold ||
-                     (isNumericStyle && (styleCode & 1) !== 0) ||
-                     styleText.indexOf('bold') !== -1 ||
-                     weightText === 'bold' ||
-                     weightText === 'b' ||
-                     (isFinite(Number(weightText)) && Number(weightText) >= 600);
-
-        // 2. Check Italic
-        var isItalic = propItalic ||
-                       (isNumericStyle && (styleCode & 2) !== 0) ||
-                       styleText.indexOf('italic') !== -1 ||
-                       styleText.indexOf('oblique') !== -1;
-
-        // 3. Check Underline
-        var isUnderline = propUnderline ||
-                          (isNumericStyle && (styleCode & 4) !== 0) ||
-                          styleText.indexOf('underline') !== -1 ||
-                          decText.indexOf('underline') !== -1;
-
-        // 4. Check Strikethrough
-        var isStrikethrough = propStrike ||
-                             (isNumericStyle && (styleCode & 8) !== 0) ||
-                             styleText.indexOf('strike') !== -1 ||
-                             styleText.indexOf('line-through') !== -1 ||
-                             decText.indexOf('line-through') !== -1 ||
-                             decText.indexOf('strike') !== -1;
-
-        var decorations = [];
-        if (isUnderline) {
-            decorations.push('underline');
-        }
-        if (isStrikethrough) {
-            decorations.push('line-through');
-        }
+        var weight = defaults && defaults.weight ? defaults.weight : '400';
 
         return {
             family: family,
             size: size,
             color: color,
-            weight: isBold ? '700' : '400',
-            style: isItalic ? 'italic' : 'normal',
-            decoration: decorations.length ? decorations.join(' ') : 'none'
+            weight: weight,
+            style: 'normal',
+            decoration: 'none'
         };
     }
 
     function lineSettings(line, fallbackColor) {
         var value = line || {};
-        var rawStyle = typeof value.lineStyle !== 'undefined' && value.lineStyle !== null ? value.lineStyle : (value.style || value.pattern || value.type || 'solid');
-        var rawWidth = typeof value.lineWidth !== 'undefined' && value.lineWidth !== null ? value.lineWidth : (value.width || value.weight || value.size || null);
         var rawColor = value.lineColor || value.color || value.lc || value.clr || value.fillColor || fallbackColor;
-
-        var styleText = String(rawStyle).toLowerCase().trim();
-        var styleCode = parseInt(rawStyle, 10);
-        var isNumericStyle = isFinite(styleCode);
-
+        var styleText = String(value.lineStyle || value.style || value.ls || '').toLowerCase();
+        var rawWidth = value.lineWidth !== null && typeof value.lineWidth !== 'undefined' ? value.lineWidth : (value.width || value.lw || '');
         var style = 'solid';
         var width = '1px';
+        var isNumericStyle = isFinite(parseInt(styleText, 10));
 
-        if (isNumericStyle) {
-            switch (styleCode) {
-                case 0:
-                    style = 'none';
-                    width = '0px';
-                    break;
-                case 1:
-                    style = 'solid';
-                    width = '1px';
-                    break;
-                case 2:
-                    style = 'solid';
-                    width = '2px';
-                    break;
-                case 3:
-                    style = 'dashed';
-                    width = '1px';
-                    break;
-                case 4:
-                    style = 'dotted';
-                    width = '1px';
-                    break;
-                case 5:
-                    style = 'double';
-                    width = '3px';
-                    break;
-                default:
-                    style = 'solid';
-                    width = '1px';
-                    break;
-            }
-        } else {
-            if (styleText.indexOf('none') !== -1) {
+        if (styleText.indexOf('none') !== -1 || styleText.indexOf('hidden') !== -1) {
+            style = 'none';
+        } else if (styleText.indexOf('dashed') !== -1) {
+            style = 'dashed';
+        } else if (styleText.indexOf('dotted') !== -1) {
+            style = 'dotted';
+        } else if (styleText.indexOf('double') !== -1) {
+            style = 'double';
+        } else if (isNumericStyle) {
+            var numericStyle = parseInt(styleText, 10);
+            if (numericStyle === 0) {
                 style = 'none';
-                width = '0px';
-            } else if (styleText.indexOf('dash') !== -1) {
+            } else if (numericStyle === 2) {
                 style = 'dashed';
-            } else if (styleText.indexOf('dot') !== -1) {
+            } else if (numericStyle === 3) {
                 style = 'dotted';
-            } else if (styleText.indexOf('double') !== -1) {
-                style = 'double';
-                width = '3px';
-            } else if (styleText.indexOf('bold') !== -1 || styleText.indexOf('thick') !== -1 || styleText.indexOf('heavy') !== -1) {
-                style = 'solid';
-                width = '2px';
             } else {
                 style = 'solid';
             }
@@ -287,11 +197,6 @@
             var parsedWidth = parseFloat(rawWidth);
             if (isFinite(parsedWidth) && parsedWidth > 0) {
                 width = parsedWidth + 'px';
-            }
-        } else if (!isNumericStyle) {
-            var widthMatch = styleText.match(/(\d+(?:\.\d+)?)\s*px/);
-            if (widthMatch) {
-                width = widthMatch[1] + 'px';
             }
         }
 
@@ -450,7 +355,7 @@
             }
         } else {
             if (bgIsDark && isDefaultDarkText) {
-                return '#f8fafc';
+                return '#ffffff';
             }
         }
 
@@ -494,11 +399,11 @@
         var kpiTitleFgColor = resolveThemeTextColor(kpiTitleFontProp, '#52606d', theme.kpiTitleFg, kpiCardBg, isDefaultTheme);
         var kpiValueFgColor = resolveThemeTextColor(kpiValueFontProp, '#1f2937', theme.kpiValueFg, kpiCardBg, isDefaultTheme);
 
-        var headerFont = fontSettings(headerFontProp, { family: 'Arial', size: '12px', color: headerFgColor });
-        var valueFont = fontSettings(valueFontProp, { family: 'Arial', size: '12px', color: valueFgColor });
-        var totalFont = fontSettings(totalFontProp, { family: 'Arial', size: '12px', color: totalFgColor });
-        var kpiTitleFont = fontSettings(kpiTitleFontProp, { family: 'Arial', size: '10px', color: kpiTitleFgColor });
-        var kpiValueFont = fontSettings(kpiValueFontProp, { family: 'Arial', size: '16px', color: kpiValueFgColor });
+        var headerFont = fontSettings(headerFontProp, { family: 'Arial', size: '12px', color: headerFgColor, weight: '600' });
+        var valueFont = fontSettings(valueFontProp, { family: 'Arial', size: '12px', color: valueFgColor, weight: '400' });
+        var totalFont = fontSettings(totalFontProp, { family: 'Arial', size: '12px', color: totalFgColor, weight: '700' });
+        var kpiTitleFont = fontSettings(kpiTitleFontProp, { family: 'Arial', size: '10px', color: kpiTitleFgColor, weight: '700' });
+        var kpiValueFont = fontSettings(kpiValueFontProp, { family: 'Arial', size: '16px', color: kpiValueFgColor, weight: '700' });
 
         return {
             presetTheme: presetTheme,
