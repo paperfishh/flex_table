@@ -308,6 +308,195 @@
         { name: 'Bottom', value: 'bottom' }
     ];
 
+    var fontFamilies = [
+        { name: 'Arial', value: 'Arial' },
+        { name: 'Calibri', value: 'Calibri' },
+        { name: 'Courier New', value: 'Courier New' },
+        { name: 'Georgia', value: 'Georgia' },
+        { name: 'Helvetica', value: 'Helvetica' },
+        { name: 'Segoe UI', value: 'Segoe UI' },
+        { name: 'Tahoma', value: 'Tahoma' },
+        { name: 'Times New Roman', value: 'Times New Roman' },
+        { name: 'Trebuchet MS', value: 'Trebuchet MS' },
+        { name: 'Verdana', value: 'Verdana' }
+    ];
+
+    function fill(label, propertyName, disabled) {
+        var row = labelledControl(label, {
+            style: $WT.FILLGROUP,
+            propertyName: propertyName
+        }, 32);
+        row.disabled = !!disabled;
+        return row;
+    }
+
+    function line(label, propertyName, disabled) {
+        var row = labelledControl(label, {
+            style: $WT.LINEGROUP,
+            propertyName: propertyName
+        }, 32);
+        row.disabled = !!disabled;
+        return row;
+    }
+
+    function textBox(label, propertyName, disabled) {
+        var row = labelledControl(label, {
+            style: $WT.TEXTBOX,
+            propertyName: propertyName
+        });
+        row.disabled = !!disabled;
+        return row;
+    }
+
+    function attributeThresholdGroup(host) {
+        var state = host._flexTableState;
+        var columns = state && state.columns ? state.columns : [];
+        var attrColumns = [];
+
+        columns.forEach(function (column, index) {
+            if (!column.isMetric && column.thresholdPrefix) {
+                attrColumns.push({ column: column, index: index });
+            }
+        });
+
+        if (attrColumns.length === 0) {
+            return {
+                name: 'Attribute Threshold',
+                value: [{
+                    style: $WT.EDITORGROUP,
+                    items: [
+                        { style: $WT.LABEL, labelText: 'Add at least one attribute to configure attribute threshold.' }
+                    ]
+                }]
+            };
+        }
+
+        var thresholdItems = [];
+        attrColumns.forEach(function (item) {
+            var column = item.column;
+            var prefix = column.thresholdPrefix;
+            var disabled = host.getProperty(prefix + 'attr_enabled') !== 'true';
+
+            thresholdItems.push({ style: $WT.LABEL, labelText: column.name });
+            thresholdItems.push({ style: $WT.CHECKBOXANDLABEL, propertyName: prefix + 'attr_enabled', labelText: 'Enable categorical threshold' });
+            thresholdItems.push(pullDown('Apply style to', prefix + 'attr_target', [
+                { name: 'Status badge', value: 'badge' },
+                { name: 'Cell background', value: 'cell' },
+                { name: 'Text color', value: 'text' }
+            ], disabled));
+
+            var ruleIndex;
+            for (ruleIndex = 1; ruleIndex <= 10; ruleIndex += 1) {
+                thresholdItems.push({ style: $WT.LABEL, labelText: 'Rule ' + ruleIndex });
+                thresholdItems.push(textBox('Value text', prefix + 'attr_rule' + ruleIndex + '_text', disabled));
+                thresholdItems.push(fill('Background', prefix + 'attr_rule' + ruleIndex + '_bg', disabled));
+                thresholdItems.push(fill('Text Color', prefix + 'attr_rule' + ruleIndex + '_color', disabled));
+            }
+        });
+
+        return {
+            name: 'Attribute Threshold',
+            value: [{
+                style: $WT.EDITORGROUP,
+                items: thresholdItems
+            }]
+        };
+    }
+
+    function metricThresholdGroup(host) {
+        var state = host._flexTableState;
+        var columns = state && state.columns ? state.columns : [];
+        var metricColumns = [];
+
+        columns.forEach(function (column, index) {
+            if (column.isMetric && column.thresholdPrefix) {
+                metricColumns.push({ column: column, index: index });
+            }
+        });
+
+        if (metricColumns.length === 0) {
+            return {
+                name: 'Metric Formatting & Thresholds',
+                value: [{
+                    style: $WT.EDITORGROUP,
+                    items: [
+                        { style: $WT.LABEL, labelText: 'Add at least one metric to configure data bars or thresholds.' }
+                    ]
+                }]
+            };
+        }
+
+        var thresholdItems = [];
+        metricColumns.forEach(function (item) {
+            var column = item.column;
+            var prefix = column.thresholdPrefix;
+
+            var dataBarDisabled = host.getProperty(prefix + 'showDataBar') !== 'true';
+            var dataBarCustomDisabled = dataBarDisabled || host.getProperty(prefix + 'dataBarRangeMode') !== 'custom';
+
+            var disabled = host.getProperty(prefix + 'enabled') !== 'true';
+            var isStaged = host.getProperty(prefix + 'mode') === 'staged';
+            var continuousDisabled = disabled || isStaged;
+            var stagedDisabled = disabled || !isStaged;
+            var customRangeDisabled = disabled || host.getProperty(prefix + 'rangeMode') !== 'custom';
+            var customCutoffDisabled = stagedDisabled || host.getProperty(prefix + 'rangeMode') !== 'custom';
+
+            thresholdItems.push({ style: $WT.LABEL, labelText: column.name });
+
+            thresholdItems.push({ style: $WT.CHECKBOXANDLABEL, propertyName: prefix + 'showDataBar', labelText: 'Enable data bar' });
+            thresholdItems.push(pullDown('Data bar style', prefix + 'dataBarMode', [
+                { name: 'Fill bar inside cell', value: 'fill' },
+                { name: 'Mini bar at bottom of cell', value: 'bottom' }
+            ], dataBarDisabled));
+            thresholdItems.push(fill('Bar primary color', prefix + 'dataBarColor', dataBarDisabled));
+            thresholdItems.push(fill('Bar gradient color', prefix + 'dataBarGradientColor', dataBarDisabled));
+            thresholdItems.push(fill('Negative bar color', prefix + 'dataBarNegativeColor', dataBarDisabled));
+            thresholdItems.push(pullDown('Bar min/max range', prefix + 'dataBarRangeMode', [
+                { name: 'Auto (Column Min/Max)', value: 'auto' },
+                { name: 'Custom values', value: 'custom' }
+            ], dataBarDisabled));
+            thresholdItems.push(textBox('Custom bar min', prefix + 'dataBarMin', dataBarCustomDisabled));
+            thresholdItems.push(textBox('Custom bar max', prefix + 'dataBarMax', dataBarCustomDisabled));
+
+            thresholdItems.push({ style: $WT.CHECKBOXANDLABEL, propertyName: prefix + 'enabled', labelText: 'Enable metric threshold' });
+            thresholdItems.push(pullDown('Color mode', prefix + 'mode', [
+                { name: 'Continuous color', value: 'continuous' },
+                { name: 'Staged color', value: 'staged' }
+            ], disabled));
+            thresholdItems.push(pullDown('Apply color to', prefix + 'target', [
+                { name: 'Cell background', value: 'background' },
+                { name: 'Text color', value: 'text' }
+            ], disabled));
+
+            thresholdItems.push(pullDown('Value range mode', prefix + 'rangeMode', [
+                { name: 'Auto (Column Min/Max)', value: 'auto' },
+                { name: 'Custom values', value: 'custom' }
+            ], disabled));
+
+            thresholdItems.push({ style: $WT.LABEL, labelText: 'Continuous color' });
+            thresholdItems.push(textBox('Custom minimum', prefix + 'min', customRangeDisabled));
+            thresholdItems.push(textBox('Custom maximum', prefix + 'max', customRangeDisabled));
+            thresholdItems.push(fill('Low-value color', prefix + 'lowColor', continuousDisabled));
+            thresholdItems.push(fill('Mid-value color', prefix + 'midColor', continuousDisabled));
+            thresholdItems.push(fill('High-value color', prefix + 'highColor', continuousDisabled));
+
+            thresholdItems.push({ style: $WT.LABEL, labelText: 'Staged color (3 stages)' });
+            thresholdItems.push(textBox('Stage 1 -> 2 cutoff', prefix + 'cutoff1', customCutoffDisabled));
+            thresholdItems.push(textBox('Stage 2 -> 3 cutoff', prefix + 'cutoff2', customCutoffDisabled));
+            thresholdItems.push(fill('Stage 1 color', prefix + 'stage1Color', stagedDisabled));
+            thresholdItems.push(fill('Stage 2 color', prefix + 'stage2Color', stagedDisabled));
+            thresholdItems.push(fill('Stage 3 color', prefix + 'stage3Color', stagedDisabled));
+        });
+
+        return {
+            name: 'Metric Formatting & Thresholds',
+            value: [{
+                style: $WT.EDITORGROUP,
+                items: thresholdItems
+            }]
+        };
+    }
+
     mstrmojo.plugins.FlexTable.FlexTableEditorModel = mstrmojo.declare(
         mstrmojo.vi.models.editors.CustomVisEditorModel,
         null,
@@ -316,13 +505,12 @@
 
             getCustomProperty: function () {
                 var host = this.getHost();
-                var paginationDisabled = host.getProperty('enablePagination') === 'false';
-                var bandingDisabled = host.getProperty('showBanding') === 'false';
-                var outlineDisabled = host.getProperty('showOutline') === 'false';
+                var paginationDisabled = host.getProperty('enablePagination') !== 'true';
+                var bandingDisabled = host.getProperty('showBanding') !== 'true';
+                var outlineDisabled = host.getProperty('showOutline') !== 'true';
                 var totalDisabled = host.getProperty('showTotal') !== 'true';
                 var fixedColumnDisabled = host.getProperty('columnSizing') !== 'fixed';
                 var fixedRowDisabled = host.getProperty('rowSizing') !== 'fixed';
-
                 var kpiDisabled = host.getProperty('showKpiCards') !== 'true';
 
                 var properties = [
@@ -364,8 +552,8 @@
                                 { style: $WT.CHECKBOXANDLABEL, propertyName: 'showKpiMinMax', labelText: 'Show Min / Max subtitle', disabled: kpiDisabled },
                                 fill('Card background', 'kpiCardFill', kpiDisabled),
                                 fill('Card border color', 'kpiCardBorderFill', kpiDisabled),
-                                font('Title font', 'kpiTitleFont', kpiDisabled),
-                                font('Value font', 'kpiValueFont', kpiDisabled)
+                                fill('Title text color', 'kpiTitleColor', kpiDisabled),
+                                fill('Value text color', 'kpiValueColor', kpiDisabled)
                             ]
                         }]
                     },
@@ -391,8 +579,10 @@
                         value: [{
                             style: $WT.EDITORGROUP,
                             items: [
-                                font('Font', 'headerFont'),
+                                fill('Text color', 'headerTextColor'),
                                 fill('Background color', 'headerFill'),
+                                pullDown('Font family', 'headerFontFamily', fontFamilies),
+                                stepper('Font size (px)', 'headerFontSize', 8, 48),
                                 pullDown('Horizontal align', 'headerHAlign', horizontalAlignment),
                                 pullDown('Vertical align', 'headerVAlign', verticalAlignment),
                                 { style: $WT.CHECKBOXANDLABEL, propertyName: 'headerWrap', labelText: 'Wrap header text' }
@@ -404,8 +594,10 @@
                         value: [{
                             style: $WT.EDITORGROUP,
                             items: [
-                                font('Font', 'valueFont'),
+                                fill('Text color', 'valueTextColor'),
                                 fill('Row background', 'rowFill'),
+                                pullDown('Font family', 'valueFontFamily', fontFamilies),
+                                stepper('Font size (px)', 'valueFontSize', 8, 48),
                                 pullDown('Text alignment', 'attributeHAlign', horizontalAlignment),
                                 pullDown('Metric alignment', 'metricHAlign', horizontalAlignment),
                                 pullDown('Vertical align', 'valueVAlign', verticalAlignment),
@@ -450,7 +642,7 @@
                                     { name: 'Minimum', value: 'min' },
                                     { name: 'Maximum', value: 'max' }
                                 ], totalDisabled),
-                                font('Font', 'totalFont'),
+                                fill('Text color', 'totalTextColor'),
                                 fill('Background color', 'totalFill', totalDisabled)
                             ]
                         }]

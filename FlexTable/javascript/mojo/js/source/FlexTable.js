@@ -376,11 +376,16 @@
         var kpiCardFillProp = viz.getProperty('kpiCardFill');
         var kpiCardBorderFillProp = viz.getProperty('kpiCardBorderFill');
 
-        var headerFontProp = viz.getProperty('headerFont');
-        var valueFontProp = viz.getProperty('valueFont');
-        var totalFontProp = viz.getProperty('totalFont');
-        var kpiTitleFontProp = viz.getProperty('kpiTitleFont');
-        var kpiValueFontProp = viz.getProperty('kpiValueFont');
+        var headerFontProp = viz.getProperty('headerTextColor') || viz.getProperty('headerFont');
+        var valueFontProp = viz.getProperty('valueTextColor') || viz.getProperty('valueFont');
+        var totalFontProp = viz.getProperty('totalTextColor') || viz.getProperty('totalFont');
+        var kpiTitleFontProp = viz.getProperty('kpiTitleColor') || viz.getProperty('kpiTitleFont');
+        var kpiValueFontProp = viz.getProperty('kpiValueColor') || viz.getProperty('kpiValueFont');
+
+        var headerFontFamily = viz.getProperty('headerFontFamily') || (headerFontProp && typeof headerFontProp === 'object' ? headerFontProp.fontFamily : 'Arial');
+        var headerFontSize = viz.getProperty('headerFontSize') ? viz.getProperty('headerFontSize') + 'px' : (headerFontProp && typeof headerFontProp === 'object' ? headerFontProp.fontSize : '12px');
+        var valueFontFamily = viz.getProperty('valueFontFamily') || (valueFontProp && typeof valueFontProp === 'object' ? valueFontProp.fontFamily : 'Arial');
+        var valueFontSize = viz.getProperty('valueFontSize') ? viz.getProperty('valueFontSize') + 'px' : (valueFontProp && typeof valueFontProp === 'object' ? valueFontProp.fontSize : '12px');
 
         var headerColor = resolveThemeColor(headerFillProp, '#f5f8fa', theme.headerBg, isDefaultTheme);
         var rowColor = resolveThemeColor(rowFillProp, '#ffffff', theme.rowBg, isDefaultTheme);
@@ -399,11 +404,11 @@
         var kpiTitleFgColor = resolveThemeTextColor(kpiTitleFontProp, '#52606d', theme.kpiTitleFg, kpiCardBg, isDefaultTheme);
         var kpiValueFgColor = resolveThemeTextColor(kpiValueFontProp, '#1f2937', theme.kpiValueFg, kpiCardBg, isDefaultTheme);
 
-        var headerFont = fontSettings(headerFontProp, { family: 'Arial', size: '12px', color: headerFgColor, weight: '600' });
-        var valueFont = fontSettings(valueFontProp, { family: 'Arial', size: '12px', color: valueFgColor, weight: '400' });
-        var totalFont = fontSettings(totalFontProp, { family: 'Arial', size: '12px', color: totalFgColor, weight: '700' });
-        var kpiTitleFont = fontSettings(kpiTitleFontProp, { family: 'Arial', size: '10px', color: kpiTitleFgColor, weight: '700' });
-        var kpiValueFont = fontSettings(kpiValueFontProp, { family: 'Arial', size: '16px', color: kpiValueFgColor, weight: '700' });
+        var headerFont = { family: headerFontFamily, size: headerFontSize, color: headerFgColor, weight: '600', style: 'normal', decoration: 'none' };
+        var valueFont = { family: valueFontFamily, size: valueFontSize, color: valueFgColor, weight: '400', style: 'normal', decoration: 'none' };
+        var totalFont = { family: 'Arial', size: '12px', color: totalFgColor, weight: '700', style: 'normal', decoration: 'none' };
+        var kpiTitleFont = { family: 'Arial', size: '10px', color: kpiTitleFgColor, weight: '700', style: 'normal', decoration: 'none' };
+        var kpiValueFont = { family: 'Arial', size: '16px', color: kpiValueFgColor, weight: '700', style: 'normal', decoration: 'none' };
 
         return {
             presetTheme: presetTheme,
