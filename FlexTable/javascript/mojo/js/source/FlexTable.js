@@ -150,7 +150,7 @@
         var family = value.fontFamily || value.family || value.fontName || value.name || (defaults && defaults.family ? defaults.family : 'Arial');
         var rawSize = value.fontSize !== null && typeof value.fontSize !== 'undefined' ? value.fontSize : (value.size || (defaults && defaults.size ? defaults.size : '12px'));
         var size = formatFontSize(rawSize, defaults && defaults.size ? defaults.size : '12px');
-        var color = fillColor(value.fontColor || value.color || value.fc, defaults && defaults.color ? defaults.color : '#1f2937');
+        var color = (defaults && defaults.color) ? defaults.color : fillColor(value.fontColor || value.color || value.fc, '#1f2937');
 
         var styleCode = parseInt(value.fontStyle, 10);
         var isNumericStyle = isFinite(styleCode);
@@ -343,17 +343,17 @@
         dark: {
             bg: '#0f172a',
             headerBg: '#1e293b',
-            headerFg: '#f1f5f9',
+            headerFg: '#ffffff',
             rowBg: '#0f172a',
             bandBg: '#182234',
-            rowFg: '#e2e8f0',
+            rowFg: '#ffffff',
             gridColor: '#334155',
             totalBg: '#1e293b',
-            totalFg: '#f8fafc',
+            totalFg: '#ffffff',
             kpiBg: '#1e293b',
             kpiBorder: '#334155',
-            kpiTitleFg: '#94a3b8',
-            kpiValueFg: '#f8fafc'
+            kpiTitleFg: '#cbd5e1',
+            kpiValueFg: '#ffffff'
         },
         navy: {
             bg: '#0a192f',
@@ -361,14 +361,14 @@
             headerFg: '#64ffda',
             rowBg: '#0a192f',
             bandBg: '#112240',
-            rowFg: '#ccd6f6',
+            rowFg: '#ffffff',
             gridColor: '#233554',
             totalBg: '#172a45',
             totalFg: '#64ffda',
             kpiBg: '#112240',
             kpiBorder: '#233554',
-            kpiTitleFg: '#8892b0',
-            kpiValueFg: '#64ffda'
+            kpiTitleFg: '#94a3b8',
+            kpiValueFg: '#ffffff'
         },
         emerald: {
             bg: '#f0fdf4',
@@ -391,7 +391,7 @@
             headerFg: '#00f0ff',
             rowBg: '#090d16',
             bandBg: '#0e1626',
-            rowFg: '#e0f7fa',
+            rowFg: '#ffffff',
             gridColor: '#263552',
             totalBg: '#1a2640',
             totalFg: '#ff007f',
