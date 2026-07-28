@@ -215,7 +215,10 @@
     color: inherit;
     background: transparent;
     cursor: pointer;
-    font: inherit;
+    font-family: inherit;
+    font-size: inherit;
+    font-style: inherit;
+    font-weight: inherit;
     text-decoration: inherit;
     text-align: inherit;
     text-overflow: ellipsis;

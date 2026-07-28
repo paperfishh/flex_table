@@ -152,77 +152,55 @@
         var size = formatFontSize(rawSize, defaults && defaults.size ? defaults.size : '12px');
         var color = (defaults && defaults.color) ? defaults.color : fillColor(value.fontColor || value.color || value.fc, '#1f2937');
 
-        var styleCode = parseInt(value.fontStyle, 10);
-        var isNumericStyle = isFinite(styleCode);
-        var styleText = String(value.fontStyle || value.style || '').toLowerCase();
+        var fontStyleRaw = value.fontStyle !== null && typeof value.fontStyle !== 'undefined' ? value.fontStyle : (value.style || '');
+        var styleCode = parseInt(fontStyleRaw, 10);
+        var isNumericStyle = isFinite(styleCode) && styleCode >= 0;
+        var styleText = String(fontStyleRaw).toLowerCase();
         var weightText = String(value.fontWeight || value.weight || '').toLowerCase();
         var decText = String(value.textDecoration || value.decoration || '').toLowerCase();
 
+        var isTrueVal = function (v) {
+            if (typeof v === 'boolean') return v;
+            if (typeof v === 'number') return v > 0;
+            if (typeof v === 'string') {
+                var s = v.toLowerCase().trim();
+                return s === 'true' || s === '1' || s === 'yes';
+            }
+            return false;
+        };
+
+        var propBold = isTrueVal(value.isBold) || isTrueVal(value.bold) || isTrueVal(value.b);
+        var propItalic = isTrueVal(value.isItalic) || isTrueVal(value.italic) || isTrueVal(value.i);
+        var propUnderline = isTrueVal(value.isUnderline) || isTrueVal(value.isUnderLine) || isTrueVal(value.underline) || isTrueVal(value.u);
+        var propStrike = isTrueVal(value.isStrikeThrough) || isTrueVal(value.isStrikethrough) || isTrueVal(value.strikethrough) || isTrueVal(value.strikeThrough) || isTrueVal(value.isLineThrough) || isTrueVal(value.lineThrough) || isTrueVal(value.s);
+
         // 1. Check Bold
-        var isBold = false;
-        var hasBoldProp = (typeof value.isBold !== 'undefined' && value.isBold !== null && value.isBold !== '') ||
-                          (typeof value.bold !== 'undefined' && value.bold !== null && value.bold !== '');
-        if (hasBoldProp) {
-            var valBold = (typeof value.isBold !== 'undefined' && value.isBold !== null && value.isBold !== '') ? value.isBold : value.bold;
-            isBold = getBoolean(valBold, false);
-        } else {
-            isBold = (isNumericStyle && (styleCode & 1) !== 0) ||
+        var isBold = propBold ||
+                     (isNumericStyle && (styleCode & 1) !== 0) ||
                      styleText.indexOf('bold') !== -1 ||
                      weightText === 'bold' ||
                      weightText === 'b' ||
                      (isFinite(Number(weightText)) && Number(weightText) >= 600);
-        }
 
         // 2. Check Italic
-        var isItalic = false;
-        var hasItalicProp = (typeof value.isItalic !== 'undefined' && value.isItalic !== null && value.isItalic !== '') ||
-                            (typeof value.italic !== 'undefined' && value.italic !== null && value.italic !== '');
-        if (hasItalicProp) {
-            var valItalic = (typeof value.isItalic !== 'undefined' && value.isItalic !== null && value.isItalic !== '') ? value.isItalic : value.italic;
-            isItalic = getBoolean(valItalic, false);
-        } else {
-            isItalic = (isNumericStyle && (styleCode & 2) !== 0) ||
+        var isItalic = propItalic ||
+                       (isNumericStyle && (styleCode & 2) !== 0) ||
                        styleText.indexOf('italic') !== -1 ||
                        styleText.indexOf('oblique') !== -1;
-        }
 
         // 3. Check Underline
-        var isUnderline = false;
-        var hasUnderlineProp = (typeof value.isUnderline !== 'undefined' && value.isUnderline !== null && value.isUnderline !== '') ||
-                               (typeof value.isUnderLine !== 'undefined' && value.isUnderLine !== null && value.isUnderLine !== '') ||
-                               (typeof value.underline !== 'undefined' && value.underline !== null && value.underline !== '');
-        if (hasUnderlineProp) {
-            var valUnd = (typeof value.isUnderline !== 'undefined' && value.isUnderline !== null && value.isUnderline !== '') ? value.isUnderline :
-                         ((typeof value.isUnderLine !== 'undefined' && value.isUnderLine !== null && value.isUnderLine !== '') ? value.isUnderLine : value.underline);
-            isUnderline = getBoolean(valUnd, false);
-        } else {
-            isUnderline = (isNumericStyle && (styleCode & 4) !== 0) ||
-                         styleText.indexOf('underline') !== -1 ||
-                         decText.indexOf('underline') !== -1;
-        }
+        var isUnderline = propUnderline ||
+                          (isNumericStyle && (styleCode & 4) !== 0) ||
+                          styleText.indexOf('underline') !== -1 ||
+                          decText.indexOf('underline') !== -1;
 
         // 4. Check Strikethrough
-        var isStrikethrough = false;
-        var hasStrikeProp = (typeof value.isStrikeThrough !== 'undefined' && value.isStrikeThrough !== null && value.isStrikeThrough !== '') ||
-                            (typeof value.isStrikethrough !== 'undefined' && value.isStrikethrough !== null && value.isStrikethrough !== '') ||
-                            (typeof value.strikethrough !== 'undefined' && value.strikethrough !== null && value.strikethrough !== '') ||
-                            (typeof value.strikeThrough !== 'undefined' && value.strikeThrough !== null && value.strikeThrough !== '') ||
-                            (typeof value.isLineThrough !== 'undefined' && value.isLineThrough !== null && value.isLineThrough !== '') ||
-                            (typeof value.lineThrough !== 'undefined' && value.lineThrough !== null && value.lineThrough !== '');
-        if (hasStrikeProp) {
-            var valStrike = (typeof value.isStrikeThrough !== 'undefined' && value.isStrikeThrough !== null && value.isStrikeThrough !== '') ? value.isStrikeThrough :
-                            ((typeof value.isStrikethrough !== 'undefined' && value.isStrikethrough !== null && value.isStrikethrough !== '') ? value.isStrikethrough :
-                            ((typeof value.strikethrough !== 'undefined' && value.strikethrough !== null && value.strikethrough !== '') ? value.strikethrough :
-                            ((typeof value.strikeThrough !== 'undefined' && value.strikeThrough !== null && value.strikeThrough !== '') ? value.strikeThrough :
-                            ((typeof value.isLineThrough !== 'undefined' && value.isLineThrough !== null && value.isLineThrough !== '') ? value.isLineThrough : value.lineThrough))));
-            isStrikethrough = getBoolean(valStrike, false);
-        } else {
-            isStrikethrough = (isNumericStyle && (styleCode & 8) !== 0) ||
+        var isStrikethrough = propStrike ||
+                             (isNumericStyle && (styleCode & 8) !== 0) ||
                              styleText.indexOf('strike') !== -1 ||
                              styleText.indexOf('line-through') !== -1 ||
                              decText.indexOf('line-through') !== -1 ||
                              decText.indexOf('strike') !== -1;
-        }
 
         var decorations = [];
         if (isUnderline) {
